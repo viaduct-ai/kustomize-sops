@@ -79,5 +79,3 @@ func (p *plugin) loadDecryptedResources() (resmap.ResMap, error) {
 func (p *plugin) Generate() (resmap.ResMap, error) {
 	return p.loadDecryptedResources()
 }
-
-func main() {}

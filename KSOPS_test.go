@@ -20,8 +20,13 @@ https://github.com/monopole/sopsencodedsecrets/blob/master/SopsEncodedSecrets_te
 const localTestDir = "./test/"
 const pluginTestDir = "/app"
 
+const yamlSuffix = ".yaml"
+
 const generatorSingleResourceFile = "generateSingleResource.yaml"
-const encryptedResourceFile = "encryptedSecret.yaml"
+const encryptedResourceName = "encryptedSecret"
+
+const encryptedResourceFile = encryptedResourceName + yamlSuffix
+
 const decryptedSingleResourceFile = "secret.yaml"
 
 const generatorMultipleResourcesFile = "generateMultipleResources.yaml"
@@ -74,7 +79,7 @@ func TestKSOPSPluginMultipleResources(t *testing.T) {
 	// Load files from testing directory
 	for _, v := range resourceVersions {
 		// Write encrypt file to make it available to the test harness
-		resourceName := "encryptedSecret" + v + ".yaml"
+		resourceName := encryptedResourceName + v + yamlSuffix
 
 		encryptedResource, err := ioutil.ReadFile(path.Join(localTestDir, resourceName))
 		check(err)
