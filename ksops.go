@@ -45,9 +45,8 @@ func (p *plugin) loadAndDecryptFile(f string) ([]byte, error) {
 
 func (p *plugin) loadDecryptedResources() (resmap.ResMap, error) {
 	resourcesBuffer := bytes.Buffer{}
-	numResources := len(p.Files)
 
-	for i, f := range p.Files {
+	for _, f := range p.Files {
 
 		decryptedBytes, err := p.loadAndDecryptFile(f)
 
@@ -55,13 +54,9 @@ func (p *plugin) loadDecryptedResources() (resmap.ResMap, error) {
 			return nil, errors.Wrapf(err, "trouble decrypting file %s", f)
 		}
 
+		// Write and separate resources
 		resourcesBuffer.Write(decryptedBytes)
-
-		// Do not add document end for a single resource or the last resource
-		if numResources > 1 && i != numResources-1 {
-			// Check if this is valid at the top of a resource (start with ---)
-			resourcesBuffer.WriteString("---\n")
-		}
+		resourcesBuffer.WriteString("---\n")
 	}
 
 	resourcesBytes := resourcesBuffer.Bytes()
