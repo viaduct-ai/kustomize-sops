@@ -20,17 +20,22 @@ https://github.com/monopole/sopsencodedsecrets/blob/master/SopsEncodedSecrets_te
 const localTestDir = "./test/"
 const pluginTestDir = "/app"
 
+const kustomizePluginOwner = "viaduct.ai"
+const kustomizePluginVersion = "v1"
+const kustomizePluginName = "ksops"
+
 const yamlSuffix = ".yaml"
+const encryptionSuffix = ".enc"
 
-const generatorSingleResourceFile = "generateSingleResource.yaml"
-const encryptedResourceName = "encryptedSecret"
+const generatorSingleResourceFile = "generate-single-resource.yaml"
 
-const encryptedResourceFile = encryptedResourceName + yamlSuffix
+const encryptedResourceName = "secret"
+const encryptedResourceFile = encryptedResourceName + encryptionSuffix + yamlSuffix
 
 const decryptedSingleResourceFile = "secret.yaml"
 
-const generatorMultipleResourcesFile = "generateMultipleResources.yaml"
-const decryptedMultipleResourceFile = "multipleSecrets.yaml"
+const generatorMultipleResourcesFile = "generate-multiple-resources.yaml"
+const decryptedMultipleResourceFile = "multiple-secrets.yaml"
 
 var resourceVersions = [3]string{"A", "B", "C"}
 
@@ -45,7 +50,7 @@ func TestKSOPSPluginSingleResource(t *testing.T) {
 	defer tc.Reset()
 
 	tc.BuildGoPlugin(
-		"viaduct.ai", "v1", "KSOPS")
+kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
 
 	th := kusttest_test.NewKustTestPluginHarness(t, pluginTestDir)
 
@@ -72,14 +77,14 @@ func TestKSOPSPluginMultipleResources(t *testing.T) {
 	defer tc.Reset()
 
 	tc.BuildGoPlugin(
-		"viaduct.ai", "v1", "KSOPS")
+kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
 
 	th := kusttest_test.NewKustTestPluginHarness(t, pluginTestDir)
 
 	// Load files from testing directory
 	for _, v := range resourceVersions {
 		// Write encrypt file to make it available to the test harness
-		resourceName := encryptedResourceName + v + yamlSuffix
+		resourceName := encryptedResourceName + "-" v + encryptionSuffix +  yamlSuffix
 
 		encryptedResource, err := ioutil.ReadFile(path.Join(localTestDir, resourceName))
 		check(err)

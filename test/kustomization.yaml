@@ -1,0 +1,3 @@
+generators:
+  - ./generate-single-resource.yaml
+  - ./generate-multiple-resources.yaml
