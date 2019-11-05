@@ -50,7 +50,7 @@ func TestKSOPSPluginSingleResource(t *testing.T) {
 	defer tc.Reset()
 
 	tc.BuildGoPlugin(
-kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
+		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
 
 	th := kusttest_test.NewKustTestPluginHarness(t, pluginTestDir)
 
@@ -77,14 +77,14 @@ func TestKSOPSPluginMultipleResources(t *testing.T) {
 	defer tc.Reset()
 
 	tc.BuildGoPlugin(
-kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
+		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
 
 	th := kusttest_test.NewKustTestPluginHarness(t, pluginTestDir)
 
 	// Load files from testing directory
 	for _, v := range resourceVersions {
 		// Write encrypt file to make it available to the test harness
-		resourceName := encryptedResourceName + "-" v + encryptionSuffix +  yamlSuffix
+		resourceName := encryptedResourceName + "-" + v + encryptionSuffix + yamlSuffix
 
 		encryptedResource, err := ioutil.ReadFile(path.Join(localTestDir, resourceName))
 		check(err)

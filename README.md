@@ -21,16 +21,24 @@
 ### Download KSOPS
 
 ```bash
-go get -u ...
+# export GO111MODULE=on 
+go get -u github.com/viaduct-ai/kustomize-sops
 ```
 
 ### Build KSOPS
 
 ```bash
+cd $GOPATH/src/github.com/viaduct-ai/kustomize-sops
 go build -buildmode plugin -o ksops.so
 ```
 
-### Make KSOPS available to kustomize 
+### Make the KSOPS plugin available to kustomize 
+
+```bash
+# export XDG_CONFIG_HOME=$HOME/.config
+mkdir -p $XDG_CONFIG_HOME/kustomize/plugin/viaduct-ai/v1/ksops/
+cp ksops.so $XDG_CONFIG_HOME/kustomize/plugin/viaduct-ai/v1/ksops/
+```
 
 ### Configure SOPS via .sops.yaml
 For this example and testing, `KSOPS` relies on the `SOPS` creation rules defined in `.sops.yaml`. To make encrypted secrets more readable, we suggest using the following encryption regex to only encrypt `data` and `stringData` values. This leaves non-sensitive fields, like the secret's name, unencrypted and human readable.
@@ -38,6 +46,8 @@ For this example and testing, `KSOPS` relies on the `SOPS` creation rules define
 ```yaml
 creation_rules:
   - encrypted_regex: '^(data|stringData)$'
+    # Specify kms/pgp/etc encryption key
+    kms: XXXXXX
 ```
 
 
@@ -47,15 +57,16 @@ See [SOPS](https://github.com/mozilla/sops) for details.
 
 ```bash
 # Create a local Kubernetes Secret
-echo "apiVersion: v1
-kind: Secret
+cat <<EOF > secret.yaml
+kind: apiVersion: v1
+Secret
 metadata:
   name: mysecret
 type: Opaque
 data:
   username: YWRtaW4=
   password: MWYyZDFlMmU2N2Rm
-" > secret.yaml
+EOF
 ```
 
 ### Encrypt Resources
@@ -67,23 +78,27 @@ sops -e secret.yaml > secret.enc.yaml
 ```
 
 ### Define KSOPS kustomize Generator
-```
-echo "apiVersion: viaduct.ai/v1
+```bash
+# Create a local Kubernetes Secret
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
 kind: ksops
 metadata:
   # Specify a name
-  name: example-secret-generator
-files:
-  - ./secret.enc.yaml
-" > secret-generator.yaml
+    name: example-secret-generator
+    files:
+      - ./secret.enc.yaml
+EOF
 ```
 
 ### Create the kustomization.yaml
 [Read about kustomize plugins](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md)
 
 ```bash
-echo "generators: 
-- ./secret-generator.yaml" > kustomization.yaml
+cat <<EOF > kustomization.yaml
+generators: 
+  - ./secret-generator.yaml
+EOF
 ```
 
 ### Build with kustomize 

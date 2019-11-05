@@ -1,6 +1,6 @@
 set -e
 
-PLUGIN_PATH="~/.config/kustomize/plugin/viaduct.ai/v1/ksops/"
+PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/"
 PLUGIN_NAME="ksops.so"
 
 # Build Go plugin
