@@ -105,10 +105,7 @@ EOF
 
 ```bash
 # Build with kustomize to verify
-kustomize --enable_alpha_plugins --load_restrictor=none . 
-
-# Build with kustomize and kubectl apply
-kustomize --enable_alpha_plugins --load_restrictor=none .  | kubectl apply -f -
+kustomize --enable_alpha_plugins . 
 ```
 
 ### Troubleshooting
@@ -117,7 +114,7 @@ kustomize --enable_alpha_plugins --load_restrictor=none .  | kubectl apply -f -
 [Detailed example of kustomize Go plugin](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginGuidedExample.md)
 
 - Validate `ksops.so` is in the `kustomize` plugin path 
-    - `$KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/ksops/ksops.so`
+    - `$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/ksops.so`
 - Check your `kustomize` executable was built by Go 
     - `which kustomize`
     - `kustomize version`
@@ -156,7 +153,7 @@ Everything but setting up `.sops.yaml` is handle for you by `scripts/run-tests.s
 
 ## Argo CD Integration
  
-`KSOPS` becomes even more powerful when integrated with a CI/CD pipeline. By combining `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/), you can manage Kubernetes secrets via the same Git Ops pattern you use to manage the rest of your kubernetes manifests. To integrate `KSOPS` and [Argo CD], you will need to create a [custom Argo CD build](https://argoproj.github.io/argo-cd/operator-manual/custom_tools/#byoi-build-your-own-image). 
+`KSOPS` becomes even more powerful when integrated with a CI/CD pipeline. By combining `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/), you can manage Kubernetes secrets via the same Git Ops pattern you use to manage the rest of your kubernetes manifests. To integrate `KSOPS` and [Argo CD](https://github.com/argoproj/argo-cd/), you will need to create a [custom Argo CD build](https://argoproj.github.io/argo-cd/operator-manual/custom_tools/#byoi-build-your-own-image). 
 
 ### Custom Argo CD w/ KSOPS Dockerfile
  
@@ -218,5 +215,5 @@ COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/*  $KUSTO
 USER argocd
 ```
 
-Don't forget to inject any necessary credentials (i.e AWS credentials) when deploying this Argo CD + `KSOPS` build!
+Don't forget to inject any necessary credentials (i.e AWS credentials) when deploying this [Argo CD](https://github.com/argoproj/argo-cd/) + `KSOPS` build!
 
