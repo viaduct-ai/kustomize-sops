@@ -1,6 +1,6 @@
 apiVersion: viaduct.ai/v1
 kind: ksops
 metadata:
-  name: DecryptGenerator
+  name: ksops-generator
 files:
-  - ./encryptedSecret.yaml
+  - ./secret.enc.yaml

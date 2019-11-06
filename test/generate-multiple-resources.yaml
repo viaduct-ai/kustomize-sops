@@ -1,0 +1,8 @@
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: ksops-generator
+files:
+  - ./secret-A.enc.yaml
+  - ./secret-B.enc.yaml
+  - ./secret-C.enc.yaml
