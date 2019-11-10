@@ -36,7 +36,7 @@ go build -buildmode plugin -o ksops.so
 
 ```bash
 # KSOPS is built with kustomize@v3.1.0 
-# If you want to change versions, make sure to check KSOPS tests pass 
+# If you want to change versions, make sure to check that the KSOPS tests still pass 
 
 # Remove existing kustomize executable
 # rm $(which kustomize)

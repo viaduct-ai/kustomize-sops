@@ -1,6 +1,11 @@
-// Copyright 2019 viaduct.ai
-// SPDX-License-Identifier: Apache-2.0
+/*
+Copyright 2019 viaduct.ai
+SPDX-License-Identifier: Apache-2.0
 
+KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resource
+
+KSOPS, or kustomize-SOPS, is a kustomize plugin for SOPS encrypted resources. KSOPS can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a kustomize plugin, KSOPS allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
+*/
 package main
 
 import (
