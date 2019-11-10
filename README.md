@@ -32,9 +32,21 @@ cd $GOPATH/src/github.com/viaduct-ai/kustomize-sops
 go build -buildmode plugin -o ksops.so
 ```
 
+### Build kustomize with the Same Version (v3.1.0) Used in KSOPS
+
+```bash
+# KSOPS is built with kustomize@v3.1.0 
+# If you want to change versions, make sure to check KSOPS tests pass 
+
+# Remove existing kustomize executable
+# rm $(which kustomize)
+go get sigs.k8s.io/kustomize/v3/cmd/kustomize@v3.1.0
+```
+
 ### Make the KSOPS plugin available to kustomize 
 
 ```bash
+# Don't forget to define XDG_CONFIG_HOME in your .bashrc/.zshrc
 # export XDG_CONFIG_HOME=$HOME/.config
 mkdir -p $XDG_CONFIG_HOME/kustomize/plugin/viaduct-ai/v1/ksops/
 cp ksops.so $XDG_CONFIG_HOME/kustomize/plugin/viaduct-ai/v1/ksops/
@@ -121,7 +133,6 @@ kustomize --enable_alpha_plugins .
 - Check the Go version in `go.mod` matches the Go version used to build `kustomize`
 - Check the `kustomize` version specified in `go.mod` matches the installed version of `kustomize`
     - `kustomize version`
-
 
 ## Development and Testing
 
