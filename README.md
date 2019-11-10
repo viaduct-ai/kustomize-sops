@@ -48,8 +48,8 @@ go get sigs.k8s.io/kustomize/v3/cmd/kustomize@v3.1.0
 ```bash
 # Don't forget to define XDG_CONFIG_HOME in your .bashrc/.zshrc
 # export XDG_CONFIG_HOME=$HOME/.config
-mkdir -p $XDG_CONFIG_HOME/kustomize/plugin/viaduct-ai/v1/ksops/
-cp ksops.so $XDG_CONFIG_HOME/kustomize/plugin/viaduct-ai/v1/ksops/
+mkdir -p $XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/
+cp ksops.so $XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/
 ```
 
 ### Configure SOPS via .sops.yaml
