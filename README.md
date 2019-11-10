@@ -25,12 +25,6 @@
 go get -u github.com/viaduct-ai/kustomize-sops
 ```
 
-### Build KSOPS
-
-```bash
-cd $GOPATH/src/github.com/viaduct-ai/kustomize-sops
-go build -buildmode plugin -o ksops.so
-```
 
 ### Build kustomize with the Same Version (v3.1.0) Used in KSOPS
 
@@ -43,13 +37,19 @@ go build -buildmode plugin -o ksops.so
 go get sigs.k8s.io/kustomize/v3/cmd/kustomize@v3.1.0
 ```
 
-### Make the KSOPS plugin available to kustomize 
+### Setup kustomize Plugin Path
 
 ```bash
 # Don't forget to define XDG_CONFIG_HOME in your .bashrc/.zshrc
-# export XDG_CONFIG_HOME=$HOME/.config
-mkdir -p $XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/
-cp ksops.so $XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/
+echo "export XDG_CONFIG_HOME=\$HOME/.config" >> $HOME/.bashrc
+```
+
+
+### Build and Install KSOPS Plugin
+
+```bash
+cd $GOPATH/src/github.com/viaduct-ai/kustomize-sops
+./scripts/build-and-install-ksops.sh
 ```
 
 ### Configure SOPS via .sops.yaml

@@ -1,4 +1,8 @@
+set -e
+
 # EXPECTS .sops.yaml TO SPECIFY CREATION RULES
+echo "Generating test files..."
+
 TEST_DIR="test/"
 SECRET="secret"
 YAML_SUFFIX=".yaml"
