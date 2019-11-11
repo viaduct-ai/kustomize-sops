@@ -117,7 +117,7 @@ EOF
 
 ```bash
 # Build with kustomize to verify
-kustomize --enable_alpha_plugins . 
+kustomize build --enable_alpha_plugins . 
 ```
 
 ### Troubleshooting
