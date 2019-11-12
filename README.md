@@ -97,9 +97,9 @@ apiVersion: viaduct.ai/v1
 kind: ksops
 metadata:
   # Specify a name
-    name: example-secret-generator
-    files:
-      - ./secret.enc.yaml
+  name: example-secret-generator
+files:
+  - ./secret.enc.yaml
 EOF
 ```
 
