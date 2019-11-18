@@ -29,6 +29,6 @@ require (
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/grpc v1.24.0 // indirect
 	gopkg.in/yaml.v2 v2.2.4 // indirect
-	sigs.k8s.io/kustomize/v3 v3.1.0
+	sigs.k8s.io/kustomize/v3 v3.2.0
 	sigs.k8s.io/yaml v1.1.0
 )
