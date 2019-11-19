@@ -236,6 +236,17 @@ spec:
           env:
             - name: XDG_CONFIG_HOME
               value: /.config
+        ## If you use AWS or GCP KMS, don't forget to include the necessary credentials to decrypt the secrets!
+        #  - name: AWS_ACCESS_KEY_ID
+        #    valueFrom:
+        #      secretKeyRef:
+        #        name: argocd-aws-credentials
+        #        key: accesskey
+        #  - name: AWS_SECRET_ACCESS_KEY
+        #    valueFrom:
+        #      secretKeyRef:
+        #        name: argocd-aws-credentials
+        #        key: secretkey
 ```
 
 ### Custom Argo CD w/ KSOPS Dockerfile
