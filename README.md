@@ -26,7 +26,7 @@ go get -u github.com/viaduct-ai/kustomize-sops
 ```
 
 
-### Build kustomize with the Same Version (v3.2.0) Used in KSOPS
+### Install (or Reinstall) kustomize with the Same Version (v3.2.0) Used in KSOPS
 
 ```bash
 # KSOPS is built with kustomize@v3.2.0 
