@@ -6,7 +6,7 @@ function install_kustomize() {
   echo "Installing $KUSTOMIZE..."
   go install sigs.k8s.io/kustomize/v3/cmd/kustomize
 
-  echo "Successfully reinstalled $KUSTOMIZE!"
+  echo "Successfully installed $KUSTOMIZE!"
   kustomize version
 }
 
@@ -18,9 +18,8 @@ if [ -x "$(command -v $KUSTOMIZE)" ]; then
   echo 
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
-      # do dangerous stuff
-    echo "Removing existing $KUSTOMIZE executable..."
     # Remove existing kustomize executable
+    echo "Removing existing $KUSTOMIZE executable..."
     echo "rm $KUSTOMIZE_EXEC"
     rm $KUSTOMIZE_EXEC
 
