@@ -31,10 +31,7 @@ go get -u github.com/viaduct-ai/kustomize-sops
 ```bash
 # KSOPS is built with kustomize@v3.2.0 
 # If you want to change versions, make sure to check that the KSOPS tests still pass 
-
-# Remove existing kustomize executable
-# rm $(which kustomize)
-go get sigs.k8s.io/kustomize/v3/cmd/kustomize@v3.2.0
+./scripts/install-kustomize.sh
 ```
 
 ### Setup kustomize Plugin Path
