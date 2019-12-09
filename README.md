@@ -1,11 +1,16 @@
 # KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resource
 
+ - [Background](#background)
  - [Overview](#overview)
  - [Requirements](#requirements)
  - [Example](#example)
  - [Development and Testing](#development-and-testing)
  - [Argo CD Integration](#argo-cd-integration)
 
+
+## Background
+
+At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via the [GitOps](https://www.weave.works/blog/gitops-operations-by-pull-request) pattern; however, we could not find a solution compatible with our stack for managing secrets via the GitOps paradigm. We built `KSOPS` to connect [kustomize](https://github.com/kubernetes-sigs/kustomize/) to [SOPS](https://github.com/mozilla/sops) and integrated it with [Argo CD](https://github.com/argoproj/argo-cd) to safely manage our secrets the same way we manage the rest our Kubernetes manifest.
 
 ## Overview
 
