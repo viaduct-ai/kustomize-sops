@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 sh ./scripts/build-and-install-ksops.sh

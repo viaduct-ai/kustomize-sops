@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 # EXPECTS .sops.yaml TO SPECIFY CREATION RULES

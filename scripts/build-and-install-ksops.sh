@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 if [[ -z "$XDG_CONFIG_HOME" ]]; then
