@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 sh ./scripts/build-and-install-ksops.sh
@@ -7,4 +8,4 @@ sh ./scripts/setup-test-files.sh
 
 # Run the tests
 echo "Running tests..."
-go test
+go test -v

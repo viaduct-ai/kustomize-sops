@@ -12,9 +12,9 @@ import (
 	"bytes"
 
 	"github.com/pkg/errors"
-	"go.mozilla.org/sops/decrypt"
-	"sigs.k8s.io/kustomize/v3/pkg/ifc"
-	"sigs.k8s.io/kustomize/v3/pkg/resmap"
+	"go.mozilla.org/sops/v3/decrypt"
+	"sigs.k8s.io/kustomize/api/ifc"
+	"sigs.k8s.io/kustomize/api/resmap"
 	"sigs.k8s.io/yaml"
 )
 
@@ -32,9 +32,9 @@ type plugin struct {
 var KustomizePlugin plugin
 
 func (p *plugin) Config(
-	ldr ifc.Loader, rf *resmap.Factory, c []byte) error {
-	p.rf = rf
-	p.ldr = ldr
+	ph *resmap.PluginHelpers, c []byte) error {
+	p.rf = ph.ResmapFactory()
+	p.ldr = ph.Loader()
 	return yaml.Unmarshal(c, p)
 }
 

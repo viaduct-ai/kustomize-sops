@@ -8,8 +8,7 @@ import (
 	"path"
 	"testing"
 
-	kusttest_test "sigs.k8s.io/kustomize/v3/pkg/kusttest"
-	plugins_test "sigs.k8s.io/kustomize/v3/pkg/plugins/test"
+	kusttest_test "sigs.k8s.io/kustomize/api/testutils/kusttest"
 )
 
 /*
@@ -46,13 +45,14 @@ func check(e error) {
 }
 
 func TestKSOPSPluginSingleResource(t *testing.T) {
-	tc := plugins_test.NewEnvForTest(t).Set()
-	defer tc.Reset()
+	th := kusttest_test.MakeEnhancedHarness(t)
 
-	tc.BuildGoPlugin(
+	defer th.Reset()
+
+	th.BuildGoPlugin(
 		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
 
-	th := kusttest_test.NewKustTestPluginHarness(t, pluginTestDir)
+	th.ResetLoaderRoot(pluginTestDir)
 
 	// Load files from testing directory
 	encryptedResource, err := ioutil.ReadFile(path.Join(localTestDir, encryptedResourceFile))
@@ -73,13 +73,13 @@ func TestKSOPSPluginSingleResource(t *testing.T) {
 }
 
 func TestKSOPSPluginMultipleResources(t *testing.T) {
-	tc := plugins_test.NewEnvForTest(t).Set()
-	defer tc.Reset()
+	th := kusttest_test.MakeEnhancedHarness(t)
+	defer th.Reset()
 
-	tc.BuildGoPlugin(
+	th.ResetLoaderRoot(pluginTestDir)
+
+	th.BuildGoPlugin(
 		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
-
-	th := kusttest_test.NewKustTestPluginHarness(t, pluginTestDir)
 
 	// Load files from testing directory
 	for _, v := range resourceVersions {

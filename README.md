@@ -31,11 +31,12 @@ go get -u github.com/viaduct-ai/kustomize-sops
 ```
 
 
-### Install (or Reinstall) kustomize with the Same Version (v3.2.0) Used in KSOPS
+### Install (or Reinstall) the Latest kustomize with in KSOPS
 
 ```bash
-# KSOPS is built with kustomize@v3.2.0 
-# If you want to change versions, make sure to check that the KSOPS tests still pass 
+# KSOPS is built with latest kustomize
+# If you want to change versions, update the installation script with your desired version and make sure to check that the KSOPS tests still pass 
+# If you want to change versions below kustomize v3.3.0, use the KSOPS v1.0 or go-1.12 release!
 ./scripts/install-kustomize.sh
 ```
 
@@ -278,7 +279,7 @@ ARG PKG_NAME=ksops
 COPY --from=ksops-builder /go/bin/kustomize /usr/local/bin/kustomize
 
 # Copy the plugin to kustomize plugin path
-COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/{PKG_NAME}.so  $KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/${PKG_NAME}/
+COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/*  $KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/${PKG_NAME}/
 
 # Switch back to non-root user
 USER argocd
