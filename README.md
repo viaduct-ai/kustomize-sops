@@ -204,19 +204,11 @@ spec:
       initContainers:
         - name: install-ksops
           # Match Argo CD Go version
-          image: golang:1.12.6
+          image: viaductoss/ksops:v1.0
           command: ["/bin/sh", "-c"]
           args:
             - echo "Installing KSOPS...";
-              export GOOS=linux;
-              export GOARCH=amd64;
-              export GO111MODULE=on;
               export PKG_NAME=ksops;
-              git clone https://github.com/viaduct-ai/kustomize-sops.git;
-              cd kustomize-sops;
-              go install;
-              go build -buildmode plugin -o ${PKG_NAME}.so ${PKG_NAME}.go;
-              go install sigs.k8s.io/kustomize/v3/cmd/kustomize;
               mv ${PKG_NAME}.so /custom-tools/;
               mv $GOPATH/bin/kustomize /custom-tools/;
               echo "Done.";
@@ -259,34 +251,13 @@ Alternatively, for more control and faster pod start times you can build a custo
 ARG ARGO_CD_VERSION="v1.3.0"
 # Always match Argo CD Dockerfile's Go version!
 # https://github.com/argoproj/argo-cd/blob/master/Dockerfile
-ARG GO_VERSION="1.12.6"
+ARG KSOPS_VERSION="v1.0"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
 #--------------------------------------------#
 
-FROM golang:$GO_VERSION as ksops-builder
-
-# Match Argo CD's build
-ENV GOOS=linux
-ENV GOARCH=amd64
-ENV GO111MODULE=on
-
-ARG PKG_NAME=ksops
-
-WORKDIR /go/src/github.com/viaduct-ai/
-
-RUN git clone https://github.com/viaduct-ai/kustomize-sops.git
-
-# CD into the clone repo
-WORKDIR /go/src/github.com/viaduct-ai/kustomize-sops
-
-# Perform the build
-RUN go install
-RUN go build -buildmode plugin -o ${PKG_NAME}.so ${PKG_NAME}.go
-
-# Install kustomize via Go
-RUN go install sigs.k8s.io/kustomize/v3/cmd/kustomize
+FROM viaductoss/ksops:$KSOPS_VERSION as ksops-builder
 
 #--------------------------------------------#
 #--------Build Custom Argo Image-------------#
@@ -307,10 +278,8 @@ ARG PKG_NAME=ksops
 COPY --from=ksops-builder /go/bin/kustomize /usr/local/bin/kustomize
 
 # Copy the plugin to kustomize plugin path
-COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/*  $KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/${PKG_NAME}/
+COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/{PKG_NAME}.so  $KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/${PKG_NAME}/
 
 # Switch back to non-root user
 USER argocd
 ```
-
-
