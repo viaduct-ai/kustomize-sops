@@ -205,7 +205,7 @@ spec:
       initContainers:
         - name: install-ksops
           # Match Argo CD Go version
-          image: viaductoss/ksops:v1.0
+          image: viaductoss/ksops:v2.0.0
           command: ["/bin/sh", "-c"]
           args:
             - echo "Installing KSOPS...";
@@ -249,10 +249,10 @@ spec:
 Alternatively, for more control and faster pod start times you can build a custom docker image.
  
  ```Dockerfile
-ARG ARGO_CD_VERSION="v1.3.0"
+ARG ARGO_CD_VERSION="v1.3.6"
 # Always match Argo CD Dockerfile's Go version!
 # https://github.com/argoproj/argo-cd/blob/master/Dockerfile
-ARG KSOPS_VERSION="v1.0"
+ARG KSOPS_VERSION="v2.0.0"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
