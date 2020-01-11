@@ -20,6 +20,7 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 - [Go](https://github.com/golang/go)
 - [kustomize](https://github.com/kubernetes-sigs/kustomize/) built with Go (See [details below](#kustomize-go-plugin-caveats))
 - [SOPS](https://github.com/mozilla/sops)
+- gpg
 
 ## Example
 
@@ -148,10 +149,6 @@ kustomize build --enable_alpha_plugins .
 ## Development and Testing
 
 Before developing or testing `KSOPS`, ensure all external [requirements](#requirements) are properly installed and the test PGP key is is imported.
-
-```bash
-gpp --import test/key.asc
-```
 
 ### Development
  
