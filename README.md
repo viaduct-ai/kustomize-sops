@@ -65,6 +65,14 @@ creation_rules:
     kms: XXXXXX
 ```
 
+#### PGP for Local Development and Testing
+
+To simplify local development and testing, we use a PGP test key. Import the key with the following command:
+```bash
+gpp --import test/key.asc
+```
+
+
 
 See [SOPS](https://github.com/mozilla/sops) for details.
 
@@ -139,7 +147,11 @@ kustomize build --enable_alpha_plugins .
 
 ## Development and Testing
 
-Before developing or testing `KSOPS`, ensure all external [requirements](#requirements) are properly installed.
+Before developing or testing `KSOPS`, ensure all external [requirements](#requirements) are properly installed and the test PGP key is is imported.
+
+```bash
+gpp --import test/key.asc
+```
 
 ### Development
  
