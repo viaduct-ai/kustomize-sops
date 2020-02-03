@@ -1,5 +1,8 @@
 # KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resource
 
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=viaduct-ai/kustomize-sops)](https://dependabot.com)
+
+
  - [Background](#background)
  - [Overview](#overview)
  - [Requirements](#requirements)
