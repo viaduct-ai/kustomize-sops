@@ -47,4 +47,6 @@ jobs:
           make build
       - name: Test
         run: |
+          go get -u go.mozilla.org/sops/v3/cmd/sops
+          make kustomize
           XDG_CONFIG_HOME=$HOME/.config make test
