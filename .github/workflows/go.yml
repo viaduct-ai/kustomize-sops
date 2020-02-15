@@ -41,10 +41,10 @@ jobs:
           diff -u <(echo -n) <(gofmt -d -e .)
       - name: Run go vet
         run: |
-          go vet -v ./...
-      - name: Test
-        run: |
-          make test
+          make go-vet
       - name: Build plugin
         run: |
           make build
+      - name: Test
+        run: |
+          XDG_CONFIG_HOME=$HOME/.config make test
