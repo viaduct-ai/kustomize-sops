@@ -66,11 +66,18 @@ lint: | $(GOLINT)
 # Git Hooks
 ################################################################################
 ## Git hooks to validate worktree is clean before commit/push
+.git/hooks/pre-push: Makefile
+	# Create Git pre-push hook
+	echo 'make pre-push' > .git/hooks/pre-push
+	chmod +x .git/hooks/pre-push
+
 .git/hooks/pre-commit: Makefile
 	# Create Git pre-commit hook
 	echo 'make pre-commit' > .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
 
 .PHONY: pre-commit
-pre-commit: download-dependencies lint go-fmt go-vet test
+pre-commit: download-dependencies lint go-fmt go-vet
 
+.PHONY: pre-push
+pre-push: test
