@@ -21,6 +21,18 @@ build-plugin:
 kustomize:
 	./scripts/install-kustomize.sh
 
+.PHONY: sops
+sops:
+	go get -u go.mozilla.org/sops/cmd/sops
+
+.PHONY: download-dependencies
+download-dependencies:
+	go mod download
+	go mod tidy
+
+.PHONY: setup
+setup: .git/hooks/pre-push .git/hooks/pre-commit kustomize sops download-dependencies
+
 .PHONY: test
 test: install setup-test-files go-test
 
@@ -40,10 +52,6 @@ go-fmt:
 go-vet:
 	go vet -v ./...
 
-.PHONY: download-dependencies
-download-dependencies:
-	go mod download
-	go mod tidy
 
 # https://vincent.bernat.ch/en/blog/2019-makefile-build-golang
 BIN = $(CURDIR)/bin

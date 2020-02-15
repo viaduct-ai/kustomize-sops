@@ -20,12 +20,17 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 `KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
 
 
-
 ## Requirements
 - [Go](https://github.com/golang/go)
 - [kustomize](https://github.com/kubernetes-sigs/kustomize/) built with Go (See [details below](#kustomize-go-plugin-caveats))
 - [SOPS](https://github.com/mozilla/sops)
 - gpg
+
+## Development
+```bash
+# Setup development environment
+make setup
+```
 
 ## Example
 
