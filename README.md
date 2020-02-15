@@ -19,6 +19,8 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 `KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
 
+
+
 ## Requirements
 - [Go](https://github.com/golang/go)
 - [kustomize](https://github.com/kubernetes-sigs/kustomize/) built with Go (See [details below](#kustomize-go-plugin-caveats))
@@ -41,7 +43,7 @@ go get -u github.com/viaduct-ai/kustomize-sops
 # KSOPS is built with latest kustomize
 # If you want to change versions, update the installation script with your desired version and make sure to check that the KSOPS tests still pass 
 # If you want to change versions below kustomize v3.3.0, use the KSOPS v1.0 or go-1.12 release!
-./scripts/install-kustomize.sh
+make kustomize
 ```
 
 ### Setup kustomize Plugin Path
@@ -56,7 +58,7 @@ echo "export XDG_CONFIG_HOME=\$HOME/.config" >> $HOME/.bashrc
 
 ```bash
 cd $GOPATH/src/github.com/viaduct-ai/kustomize-sops
-./scripts/build-and-install-ksops.sh
+make install
 ```
 
 ### Configure SOPS via .sops.yaml
@@ -71,12 +73,7 @@ creation_rules:
 
 #### PGP for Local Development and Testing
 
-To simplify local development and testing, we use a PGP test key. Import the key with the following command:
-```bash
-gpp --import test/key.asc
-```
-
-
+To simplify local development and testing, we use a PGP test key. The PGP keys will be imported when you run `make test`
 
 See [SOPS](https://github.com/mozilla/sops) for details.
 
@@ -170,19 +167,21 @@ Testing `KSOPS` requires:
 4. Generating encrypted test files
 5. Running the Go tests
 
-Everything but setting up `.sops.yaml` is handle for you by `scripts/run-tests.sh`. After defining `.sops.yaml`, test `KSOPS` running the following command from the repo's root directory:
+Everything but setting up `.sops.yaml` is handle for you by `make test`. After defining `.sops.yaml`, test `KSOPS` running the following command from the repo's root directory:
 
 ```bash
-# Must be run from the repo's root directory!
-./scripts/run-tests.sh
+make test 
 ```
 
 ## Argo CD Integration
  
 `KSOPS` becomes even more powerful when integrated with a CI/CD pipeline. By combining `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/), you can manage Kubernetes secrets via the same Git Ops pattern you use to manage the rest of your kubernetes manifests. To integrate `KSOPS` and [Argo CD](https://github.com/argoproj/argo-cd/), you will need to update the Argo CD ConifgMap and create a [strategic merge patch](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-api-machinery/strategic-merge-patch.md) or a [custom Argo CD build](https://argoproj.github.io/argo-cd/operator-manual/custom_tools/#byoi-build-your-own-image). Don't forget to inject any necessary credentials (i.e AWS credentials) when deploying the [Argo CD](https://github.com/argoproj/argo-cd/) + `KSOPS` build!
 
+
+[KSOPS Docker Image](https://hub.docker.com/r/viaductoss/ksops)
+
 ### Enable Kustomize Plugins via Argo CD ConfigMap
-As of now to allow [Argo CD](https://github.com/argoproj/argo-cd/) to use [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugins you must use the `enable_alpha_plugins` flag. This is configured by the `kustomize.buildOptions` setting in the [Argo CD](https://github.com/argoproj/argo-cd/) ConfigMap  
+As of now to allow [Argo CD](https://github.com/argoproj/argo-cd/) to use [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugins you must use the `enable_alpha_plugins` flag. This is configured by the `kustomize.buildOptions` setting in the [Argo CD](https://github.com/argoproj/argo-cd/) ConfigMap
 
 ```yaml
 apiVersion: v1
