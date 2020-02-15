@@ -30,8 +30,15 @@ setup-test-files:
 
 .PHONY: go-test
 go-test:
-	echo "Running tests..."
 	go test -v ./...
+
+.PHONY: go-fmt
+go-fmt:
+	go fmt .
+
+.PHONY: go-vet
+go-vet:
+	go vet -v ./...
 
 .PHONY: download-dependencies
 download-dependencies:
@@ -59,25 +66,11 @@ lint: | $(GOLINT)
 # Git Hooks
 ################################################################################
 ## Git hooks to validate worktree is clean before commit/push
-.git/hooks/pre-push: Makefile
-	# Create Git pre-push hook
-	echo 'make pre-push' > .git/hooks/pre-push
-	chmod +x .git/hooks/pre-push
-
-## Git hooks to validate worktree is clean before commit/push
 .git/hooks/pre-commit: Makefile
 	# Create Git pre-commit hook
 	echo 'make pre-commit' > .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
 
-.PHONY: must-be-clean
-must-be-clean:
-	# Check everything has been committed to Git
-	@if [ "$(GIT_TREE_STATE)" != "clean" ]; then echo 'git tree state is $(GIT_TREE_STATE)' ; exit 1; fi
-
-.PHONY: pre-push
-pre-push: must-be-clean pre-commit must-be-clean
-
 .PHONY: pre-commit
-pre-commit: download-dependencies lint test
+pre-commit: download-dependencies lint go-fmt go-vet test
 
