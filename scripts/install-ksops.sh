@@ -19,10 +19,6 @@ PLUGIN_NAME="ksops.so"
 mkdir -p $PLUGIN_PATH
 mkdir -p $TEST_PLUGIN_PATH
 
-# Build Go plugin
-echo "Building KSOPS Go plugin..."
-go build -buildmode plugin -o $PLUGIN_NAME
-
 # Make the plugin available to kustomize 
 echo "Copying executable plugin to the kustomize plugin path..."
 echo "cp $PLUGIN_NAME $PLUGIN_PATH"

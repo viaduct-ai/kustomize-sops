@@ -27,6 +27,7 @@ type plugin struct {
 	Files []string `json:"files,omitempty" yaml:"files,omitempty"`
 }
 
+// KustomizePlugin export to satisfy the kustomize Go plugin interface
 //noinspection GoUnusedGlobalVariable
 //nolint: golint
 var KustomizePlugin plugin
