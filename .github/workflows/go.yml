@@ -1,0 +1,52 @@
+name: Run Tests and Build
+
+on: [push]
+
+env:
+  CI: true
+  GO111MODULE: on
+  GOPROXY: https://proxy.golang.org
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        go: [1.13]
+    name: ${{ matrix.os }} @ Go ${{ matrix.go }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set up Go ${{ matrix.go }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set GOPATH and PATH
+        run: |
+          echo "::set-env name=GOPATH::$(dirname $GITHUB_WORKSPACE)"
+          echo "::add-path::$(dirname $GITHUB_WORKSPACE)/bin"
+        shell: bash
+
+      - name: Install dependencies
+        run: |
+          make download-dependencies
+      - name: Lint
+        run: |
+          make lint
+      - name: Run gofmt
+        run: |
+          diff -u <(echo -n) <(gofmt -d -e .)
+      - name: Run go vet
+        run: |
+          make go-vet
+      - name: Build plugin
+        run: |
+          make build
+      - name: Test
+        run: |
+          make sops
+          make kustomize
+          XDG_CONFIG_HOME=$HOME/.config make test

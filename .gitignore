@@ -14,5 +14,4 @@
 *.DS_Store
 *.enc*
 
-# Ignore sops.yaml
-*.sops.yaml
+bin
