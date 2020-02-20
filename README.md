@@ -9,7 +9,7 @@
  - [Requirements](#requirements)
  - [Example](#example)
  - [Development and Testing](#development-and-testing)
- - [Argo CD Integration 🤖](#argo-cd-integration-🤖)
+ - [Argo CD Integration 🤖](#argo-cd-integration-)
 
 
 ## Background
