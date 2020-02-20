@@ -9,7 +9,7 @@
  - [Requirements](#requirements)
  - [Example](#example)
  - [Development and Testing](#development-and-testing)
- - [Argo CD Integration](#argo-cd-integration)
+ - [Argo CD Integration 🤖](#argo-cd-integration-🤖)
 
 
 ## Background
@@ -62,7 +62,7 @@ source $HOME/.bashrc
 make install
 ```
 
-### 5. PGP for Local Development and Testing
+### 5. Import Test PGP Keys
 
 To simplify local development and testing, we use PGP test keys. To import the keys, run the following command:
 
@@ -151,6 +151,7 @@ kustomize build --enable_alpha_plugins .
 #### kustomize Go Plugin Caveats
 [Detailed example of kustomize Go plugin](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginGuidedExample.md)
 
+#### Sanity Checks
 - Validate `ksops.so` is in the `kustomize` plugin path
     - `$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/ksops.so`
 - Check your `kustomize` executable was built by Go
@@ -159,6 +160,12 @@ kustomize build --enable_alpha_plugins .
 - Check the Go version in `go.mod` matches the Go version used to build `kustomize`
 - Check the `kustomize` version specified in `go.mod` matches the installed version of `kustomize`
     - `kustomize version`
+
+#### Check Existing Issues
+
+Someone might have already encountered your issue.
+
+https://github.com/viaduct-ai/kustomize-sops/issues
 
 ## Development and Testing
 
