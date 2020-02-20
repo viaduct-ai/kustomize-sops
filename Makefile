@@ -33,6 +33,10 @@ download-dependencies:
 .PHONY: setup
 setup: .git/hooks/pre-push .git/hooks/pre-commit kustomize sops download-dependencies
 
+.PHONY: import-test-keys
+import-test-keys:
+	gpg --import test/key.asc
+
 .PHONY: test
 test: install setup-test-files go-test
 

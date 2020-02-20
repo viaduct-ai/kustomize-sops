@@ -1,6 +1,7 @@
 # KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resource
 
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=viaduct-ai/kustomize-sops)](https://dependabot.com)
+
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=viaduct-ai/kustomize-sops)](https://dependabot.com)  ![Tests and Build](https://github.com/viaduct-ai/kustomize-sops/workflows/Run%20Tests%20and%20Build/badge.svg?branch=master)
 
 
  - [Background](#background)
@@ -8,7 +9,7 @@
  - [Requirements](#requirements)
  - [Example](#example)
  - [Development and Testing](#development-and-testing)
- - [Argo CD Integration](#argo-cd-integration)
+ - [Argo CD Integration 🤖](#argo-cd-integration-)
 
 
 ## Background
@@ -26,69 +27,77 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 - [SOPS](https://github.com/mozilla/sops)
 - gpg
 
-## Development
-```bash
-# Setup development environment
-make setup
-```
-
 ## Example
 
-### Download KSOPS
+### 1. Download KSOPS
 
 ```bash
-# export GO111MODULE=on 
+# export GO111MODULE=on
 go get -u github.com/viaduct-ai/kustomize-sops
+# cd into the root directory
+cd $GOPATH/src/github.com/viaduct-ai/kustomize-sops
 ```
 
-
-### Install (or Reinstall) the Latest kustomize with in KSOPS
+### 2. Install (or Reinstall) the Latest kustomize via Go
 
 ```bash
 # KSOPS is built with latest kustomize
-# If you want to change versions, update the installation script with your desired version and make sure to check that the KSOPS tests still pass 
+# If you want to change versions, update the installation script with your desired version and make sure to check that the KSOPS tests still pass
 # If you want to change versions below kustomize v3.3.0, use the KSOPS v1.0 or go-1.12 release!
 make kustomize
 ```
 
-### Setup kustomize Plugin Path
+### 3. Setup kustomize Plugin Path
 
 ```bash
 # Don't forget to define XDG_CONFIG_HOME in your .bashrc/.zshrc
 echo "export XDG_CONFIG_HOME=\$HOME/.config" >> $HOME/.bashrc
+source $HOME/.bashrc
 ```
 
 
-### Build and Install KSOPS Plugin
+### 4. Build and Install KSOPS Plugin
 
 ```bash
-cd $GOPATH/src/github.com/viaduct-ai/kustomize-sops
 make install
 ```
 
-### Configure SOPS via .sops.yaml
+### 5. Import Test PGP Keys
+
+To simplify local development and testing, we use PGP test keys. To import the keys, run the following command:
+
+```bash
+make import-test-keys
+```
+
+If you are following this tutorial, be sure to run this before the following steps. The PGP keys will also be imported when you run `make test`
+
+See [SOPS](https://github.com/mozilla/sops) for details.
+
+### 6. Configure SOPS via .sops.yaml
+
 For this example and testing, `KSOPS` relies on the `SOPS` creation rules defined in `.sops.yaml`. To make encrypted secrets more readable, we suggest using the following encryption regex to only encrypt `data` and `stringData` values. This leaves non-sensitive fields, like the secret's name, unencrypted and human readable.
 
+**Note:** You only have to modify `.sops.yaml` if you want to use your key management service in this example instead of the default PGP key imported in the previous step.
 ```yaml
 creation_rules:
   - encrypted_regex: '^(data|stringData)$'
     # Specify kms/pgp/etc encryption key
-    kms: XXXXXX
+    # This tutorial uses a local PGP key for encryption.
+    # DO NOT USE IN PRODUCTION ENV
+    pgp: 'FBC7B9E2A4F9289AC0C1D4843D16CEE4A27381B4'
+    # Optionally you can configure to use a providers key store
+    # kms: XXXXXX
+    # gcp_kms: XXXXXX
 ```
 
-#### PGP for Local Development and Testing
-
-To simplify local development and testing, we use a PGP test key. The PGP keys will be imported when you run `make test`
-
-See [SOPS](https://github.com/mozilla/sops) for details.
-
-### Create Resources
+### 7. Create a Resource
 
 ```bash
 # Create a local Kubernetes Secret
 cat <<EOF > secret.yaml
-kind: apiVersion: v1
-Secret
+apiVersion: v1
+kind: Secret
 metadata:
   name: mysecret
 type: Opaque
@@ -98,7 +107,7 @@ data:
 EOF
 ```
 
-### Encrypt Resources
+### 8. Encrypt the Resources
 
 ```bash
 # Encrypt with SOPS CLI
@@ -106,7 +115,7 @@ EOF
 sops -e secret.yaml > secret.enc.yaml
 ```
 
-### Define KSOPS kustomize Generator
+### 9. Define KSOPS kustomize Generator
 ```bash
 # Create a local Kubernetes Secret
 cat <<EOF > secret-generator.yaml
@@ -120,44 +129,55 @@ files:
 EOF
 ```
 
-### Create the kustomization.yaml
+### 10. Create the kustomization.yaml
 [Read about kustomize plugins](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md)
 
 ```bash
 cat <<EOF > kustomization.yaml
-generators: 
+generators:
   - ./secret-generator.yaml
 EOF
 ```
 
-### Build with kustomize 
+### 11. Build with kustomize 🔑
 
 ```bash
 # Build with kustomize to verify
-kustomize build --enable_alpha_plugins . 
+kustomize build --enable_alpha_plugins .
 ```
 
 ### Troubleshooting
 
-#### kustomize Go Plugin Caveats 
+#### kustomize Go Plugin Caveats
 [Detailed example of kustomize Go plugin](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginGuidedExample.md)
 
-- Validate `ksops.so` is in the `kustomize` plugin path 
+#### Sanity Checks
+- Validate `ksops.so` is in the `kustomize` plugin path
     - `$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/ksops.so`
-- Check your `kustomize` executable was built by Go 
+- Check your `kustomize` executable was built by Go
     - `which kustomize`
     - `kustomize version`
 - Check the Go version in `go.mod` matches the Go version used to build `kustomize`
 - Check the `kustomize` version specified in `go.mod` matches the installed version of `kustomize`
     - `kustomize version`
 
+#### Check Existing Issues
+
+Someone might have already encountered your issue.
+
+https://github.com/viaduct-ai/kustomize-sops/issues
+
 ## Development and Testing
 
-Before developing or testing `KSOPS`, ensure all external [requirements](#requirements) are properly installed and the test PGP key is is imported.
+Before developing or testing `KSOPS`, ensure all external [requirements](#requirements) are properly installed.
+```bash
+# Setup development environment
+make setup
+```
 
 ### Development
- 
-`KSOPS` implements the [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin API in `ksops.go`. 
+
+`KSOPS` implements the [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin API in `ksops.go`.
 
 
 `KSOPS`'s logic is intentionally simple. Given a list of SOPS encrypted Kubernetes manifests, it iterates over each file and decrypts it via SOPS [decrypt](https://godoc.org/go.mozilla.org/sops/decrypt) library. `KSOPS` assumes nothing about the structure of the encrypted resource and relies on [kustomize](https://github.com/kubernetes-sigs/kustomize/) for manifest validation. `KSOPS` expects the encryption key to be accessible. This is important to consider when using `KSOPS` for CI/CD.
@@ -175,11 +195,11 @@ Testing `KSOPS` requires:
 Everything but setting up `.sops.yaml` is handle for you by `make test`. After defining `.sops.yaml`, test `KSOPS` running the following command from the repo's root directory:
 
 ```bash
-make test 
+make test
 ```
 
-## Argo CD Integration
- 
+## Argo CD Integration 🤖
+
 `KSOPS` becomes even more powerful when integrated with a CI/CD pipeline. By combining `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/), you can manage Kubernetes secrets via the same Git Ops pattern you use to manage the rest of your kubernetes manifests. To integrate `KSOPS` and [Argo CD](https://github.com/argoproj/argo-cd/), you will need to update the Argo CD ConifgMap and create a [strategic merge patch](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-api-machinery/strategic-merge-patch.md) or a [custom Argo CD build](https://argoproj.github.io/argo-cd/operator-manual/custom_tools/#byoi-build-your-own-image). Don't forget to inject any necessary credentials (i.e AWS credentials) when deploying the [Argo CD](https://github.com/argoproj/argo-cd/) + `KSOPS` build!
 
 
@@ -263,7 +283,7 @@ spec:
 ### Custom Argo CD w/ KSOPS Dockerfile
 
 Alternatively, for more control and faster pod start times you can build a custom docker image.
- 
+
  ```Dockerfile
 ARG ARGO_CD_VERSION="v1.3.6"
 # Always match Argo CD Dockerfile's Go version!
