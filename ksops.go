@@ -9,13 +9,20 @@ KSOPS, or kustomize-SOPS, is a kustomize plugin for SOPS encrypted resources. KS
 package main
 
 import (
-	"bytes"
+	"fmt"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"go.mozilla.org/sops/v3/decrypt"
 	"sigs.k8s.io/kustomize/api/ifc"
 	"sigs.k8s.io/kustomize/api/resmap"
+	"sigs.k8s.io/kustomize/api/types"
 	"sigs.k8s.io/yaml"
+)
+
+const (
+	hashAnnotation     = "kustomize.config.k8s.io/needs-hash"
+	behaviorAnnotation = "kustomize.config.k8s.io/behavior"
 )
 
 // Loads and decrypts sops-encoded files
@@ -39,46 +46,84 @@ func (p *plugin) Config(
 	return yaml.Unmarshal(c, p)
 }
 
-func (p *plugin) loadAndDecryptFile(f string) ([]byte, error) {
-	bytes, err := p.ldr.Load(f)
-
-	if err != nil {
-		return bytes, errors.Wrapf(err, "trouble reading file %s", f)
-	}
-
-	return decrypt.Data(bytes, "yaml")
-}
-
-func (p *plugin) loadDecryptedResources() (resmap.ResMap, error) {
-	resourcesBuffer := bytes.Buffer{}
-
-	for _, f := range p.Files {
-
-		decryptedBytes, err := p.loadAndDecryptFile(f)
-
-		if err != nil {
-			return nil, errors.Wrapf(err, "trouble decrypting file %s", f)
-		}
-
-		// Write and separate resources
-		resourcesBuffer.Write(decryptedBytes)
-		resourcesBuffer.WriteString("---\n")
-	}
-
-	resourcesBytes := resourcesBuffer.Bytes()
-
-	resMap, err := p.rf.NewResMapFromBytes(resourcesBytes)
-
-	if err != nil {
-		return nil, errors.Wrapf(err, "trouble converting bytes to ResMap %s", resourcesBuffer.String())
-	}
-
-	return resMap, err
-}
-
 // Generate the output. A KustomizePlugin will call this generate function
 func (p *plugin) Generate() (resmap.ResMap, error) {
-	return p.loadDecryptedResources()
+
+	// get a decrypted resmap for each files
+	var resources resmap.ResMap
+
+	for _, f := range p.Files {
+		// check for err
+		r, err := decryptResource(p, f)
+
+		// fail hard on any error
+		if err != nil {
+			return nil, errors.Wrapf(err, "trouble converting file '%s' to a resource", f)
+		}
+
+		// absorb all (i.e merge/replace colliding IDs)
+		if resources != nil {
+			resources.AbsorbAll(r)
+		} else {
+			// initialize first resmap
+			resources = r
+		}
+	}
+
+	//https://github.com/kubernetes-sigs/kustomize/blob/master/plugin/builtin/hashtransformer/HashTransformer.go
+	return UpdateResourceOptions(resources)
+}
+
+// UpdateResourceOptions updates (mutates) the resource's options based off the kustomize annotations
+// Taken from the kustomize ExecPlugin struct
+// https://github.com/kubernetes-sigs/kustomize/blob/4fc859b62eb5f61e5a01ec1d8d365c87f4771fd5/api/internal/plugins/execplugin/execplugin.go#L246
+func UpdateResourceOptions(rm resmap.ResMap) (resmap.ResMap, error) {
+	for _, r := range rm.Resources() {
+		// Disable name hashing by default and require plugin to explicitly
+		// request it for each resource.
+		annotations := r.GetAnnotations()
+		behavior := annotations[behaviorAnnotation]
+		var needsHash bool
+		if val, ok := annotations[hashAnnotation]; ok {
+			b, err := strconv.ParseBool(val)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"the annotation %q contains an invalid value (%q)",
+					hashAnnotation, val)
+			}
+			needsHash = b
+		}
+		delete(annotations, hashAnnotation)
+		delete(annotations, behaviorAnnotation)
+		if len(annotations) == 0 {
+			annotations = nil
+		}
+		r.SetAnnotations(annotations)
+		r.SetOptions(types.NewGenArgs(
+			&types.GeneratorArgs{Behavior: behavior},
+			&types.GeneratorOptions{DisableNameSuffixHash: !needsHash}))
+	}
+	return rm, nil
+}
+
+func decryptResource(p *plugin, f string) (resmap.ResMap, error) {
+	b, err := decryptFile(p, f)
+
+	if err != nil {
+		return nil, errors.Wrapf(err, "trouble decrypting file %s", f)
+	}
+
+	return p.rf.NewResMapFromBytes(b)
+}
+
+func decryptFile(p *plugin, f string) ([]byte, error) {
+	b, err := p.ldr.Load(f)
+
+	if err != nil {
+		return b, errors.Wrapf(err, "trouble reading file %s", f)
+	}
+
+	return decrypt.Data(b, "yaml")
 }
 
 func main() {}

@@ -1,0 +1,6 @@
+# Test replacing a base secret
+resources:
+  - ./base
+
+generators:
+  - ./generate-resources.yaml
