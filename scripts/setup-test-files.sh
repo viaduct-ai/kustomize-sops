@@ -17,3 +17,7 @@ sops -e ${TEST_DIR}${SECRET}.yaml > ${TEST_DIR}${SECRET}${ENC_SUFFIX}${YAML_SUFF
 sops -e ${TEST_DIR}${SECRET}-A.yaml > ${TEST_DIR}${SECRET}-A${ENC_SUFFIX}${YAML_SUFFIX}
 sops -e ${TEST_DIR}${SECRET}-B.yaml > ${TEST_DIR}${SECRET}-B${ENC_SUFFIX}${YAML_SUFFIX}
 sops -e ${TEST_DIR}${SECRET}-C.yaml > ${TEST_DIR}${SECRET}-C${ENC_SUFFIX}${YAML_SUFFIX}
+
+sops -e ${TEST_DIR}hash/${SECRET}.yaml > ${TEST_DIR}hash/${SECRET}${ENC_SUFFIX}.yaml
+
+sops -e ${TEST_DIR}behaviors/${SECRET}.yaml > ${TEST_DIR}behaviors/${SECRET}${ENC_SUFFIX}.yaml
