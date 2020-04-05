@@ -8,6 +8,7 @@
  - [Overview](#overview)
  - [Requirements](#requirements)
  - [Example](#example)
+ - [Generator Options](#generator-options)
  - [Development and Testing](#development-and-testing)
  - [Argo CD Integration 🤖](#argo-cd-integration-)
 
@@ -166,6 +167,16 @@ kustomize build --enable_alpha_plugins .
 Someone might have already encountered your issue.
 
 https://github.com/viaduct-ai/kustomize-sops/issues
+
+## Generator Options
+
+`KSOPS` supports the same annotation based generator options as [kustomize exec plugins](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md#generator-options). The supported annotations are:
+
+- `kustomize.config.k8s.io/needs-hash`
+- `kustomize.config.k8s.io/behavior`
+
+For information, read the [kustomize exec plugin generator options documenation](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md#generator-options).
+
 
 ## Development and Testing
 
