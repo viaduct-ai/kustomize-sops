@@ -95,13 +95,19 @@ func UpdateResourceOptions(rm resmap.ResMap) (resmap.ResMap, error) {
 		}
 		delete(annotations, hashAnnotation)
 		delete(annotations, behaviorAnnotation)
+
 		if len(annotations) == 0 {
 			annotations = nil
 		}
+
 		r.SetAnnotations(annotations)
 		r.SetOptions(types.NewGenArgs(
-			&types.GeneratorArgs{Behavior: behavior},
-			&types.GeneratorOptions{DisableNameSuffixHash: !needsHash}))
+			&types.GeneratorArgs{
+				Behavior: behavior,
+				Options: &types.GeneratorOptions{
+					DisableNameSuffixHash: !needsHash,
+				},
+			}))
 	}
 	return rm, nil
 }
