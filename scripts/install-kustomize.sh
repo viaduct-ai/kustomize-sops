@@ -5,9 +5,7 @@ KUSTOMIZE="kustomize"
 
 function install_kustomize() {
   echo "Installing $KUSTOMIZE..."
-  # Pin to kustomize v3.5.4 until issue is fixed
-  # https://github.com/kubernetes-sigs/kustomize/issues/2462
-  GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/v3@v3.5.4
+  GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/v3@v3.6.1
 
   echo "Successfully installed $KUSTOMIZE!"
   kustomize version
