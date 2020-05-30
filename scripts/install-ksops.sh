@@ -11,7 +11,7 @@ fi
 
 PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/"
 # Unclear why the kustomize test harness looks for the plugin relative to the current path
-# https://github.com/kubernetes-sigs/kustomize/blob/f749a4a194e1bfa50287e0c60889ca1f6eaf14bd/api/internal/plugins/compiler/compiler.go#L35
+# https://github.com/kubernetes-sigs/kustomize/blob/master/api/internal/plugins/utils/utils.go#L22
 TEST_PLUGIN_PATH="$HOME/sigs.k8s.io/kustomize/plugin/viaduct.ai/v1/ksops/"
 
 PLUGIN_NAME="ksops.so"

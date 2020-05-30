@@ -20,10 +20,6 @@ https://github.com/monopole/sopsencodedsecrets/blob/master/SopsEncodedSecrets_te
 const localTestDir = "./test/"
 const pluginTestDir = "/app"
 
-const kustomizePluginOwner = "viaduct.ai"
-const kustomizePluginVersion = "v1"
-const kustomizePluginName = "ksops"
-
 const yamlSuffix = ".yaml"
 const encryptionSuffix = ".enc"
 
@@ -50,9 +46,6 @@ func TestKSOPSPluginSingleResource(t *testing.T) {
 
 	defer th.Reset()
 
-	th.BuildGoPlugin(
-		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
-
 	th.ResetLoaderRoot(pluginTestDir)
 
 	// Load files from testing directory
@@ -78,9 +71,6 @@ func TestKSOPSPluginMultipleResources(t *testing.T) {
 	defer th.Reset()
 
 	th.ResetLoaderRoot(pluginTestDir)
-
-	th.BuildGoPlugin(
-		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
 
 	// Load files from testing directory
 	for _, v := range resourceVersions {
@@ -109,9 +99,6 @@ func TestKSOPSPluginHashAnnotation(t *testing.T) {
 
 	defer th.Reset()
 
-	th.BuildGoPlugin(
-		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
-
 	th.ResetLoaderRoot(pluginTestDir)
 
 	// Load files from testing directory
@@ -135,9 +122,6 @@ func TestKSOPSPluginBehaviorAnnotation(t *testing.T) {
 	th := kusttest_test.MakeEnhancedHarness(t)
 
 	defer th.Reset()
-
-	th.BuildGoPlugin(
-		kustomizePluginOwner, kustomizePluginVersion, kustomizePluginName)
 
 	th.ResetLoaderRoot(pluginTestDir)
 
