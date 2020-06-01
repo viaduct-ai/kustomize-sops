@@ -177,6 +177,40 @@ https://github.com/viaduct-ai/kustomize-sops/issues
 
 For information, read the [kustomize exec plugin generator options documenation](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md#generator-options).
 
+### Encrypted Secret Overlays w/ Generator Options
+
+Sometimes there is a default secret as part of a project's base manifests, like the [base Argo CD secret](https://github.com/argoproj/argo-cd/blob/master/manifests/base/config/argocd-secret.yaml), that you want to `replace` in your overlay. Other times, you have parts of base secret that are common across different overlays but you want to partially update, or `merge`, changes specific to each overlay as well. You can achieve both of these goals by simply adding the following annotations to your encrypted secrets:
+
+#### Replace a Base Secret
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-secret
+  annotations:
+      # replace the base secret data/stringData values with these encrypted data/stringData values 
+      kustomize.config.k8s.io/behavior: replace
+type: Opaque
+data:
+  # Encrpyted data here
+```
+
+#### Merge/Patch a Base Secret
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-secret
+  annotations:
+      # merge the base secret data/stringData values with these encrypted data/stringData values 
+      kustomize.config.k8s.io/behavior: merge
+type: Opaque
+data:
+  # Encrpyted data here
+```
+
 
 ## Development and Testing
 
