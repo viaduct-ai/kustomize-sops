@@ -189,7 +189,7 @@ kind: Secret
 metadata:
   name: argocd-secret
   annotations:
-      # replace the base secret values with this encrypted secret 
+      # replace the base secret data/stringData values with these encrypted data/stringData values 
       kustomize.config.k8s.io/behavior: replace
 type: Opaque
 data:
@@ -204,7 +204,7 @@ kind: Secret
 metadata:
   name: argocd-secret
   annotations:
-      # merge the base secret valuesa with this encrypted secret 
+      # merge the base secret data/stringData values with these encrypted data/stringData values 
       kustomize.config.k8s.io/behavior: merge
 type: Opaque
 data:
