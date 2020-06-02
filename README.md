@@ -193,7 +193,9 @@ metadata:
       kustomize.config.k8s.io/behavior: replace
 type: Opaque
 data:
-  # Encrpyted data here
+  # Encrypted data here
+stringData:
+  # Encrypted data here
 ```
 
 #### Merge/Patch a Base Secret
@@ -208,7 +210,9 @@ metadata:
       kustomize.config.k8s.io/behavior: merge
 type: Opaque
 data:
-  # Encrpyted data here
+  # Encrypted data here
+stringData:
+  # Encrypted data here
 ```
 
 
