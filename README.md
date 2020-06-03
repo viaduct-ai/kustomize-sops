@@ -30,6 +30,20 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 ## Example
 
+### 0. Verify Requirements  
+Before continuing, verify your installation of [Go](https://github.com/golang/go), [SOPS](https://github.com/mozilla/sops), and `gpg`. Below are a few non-comprehensive commands to quickly check your installations:
+
+```bash
+# Verify Go is installed and your $GOPATH is set
+go env
+
+# Verify SOPS is installed
+sops --version
+
+# Verify gpg is installed
+gpg --help
+```
+
 ### 1. Download KSOPS
 
 ```bash
