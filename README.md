@@ -189,7 +189,7 @@ https://github.com/viaduct-ai/kustomize-sops/issues
 - `kustomize.config.k8s.io/needs-hash`
 - `kustomize.config.k8s.io/behavior`
 
-For information, read the [kustomize exec plugin generator options documenation](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md#generator-options).
+For information, read the [kustomize exec plugin generator options documentation](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md#generator-options).
 
 ### Encrypted Secret Overlays w/ Generator Options
 
