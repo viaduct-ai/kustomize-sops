@@ -145,7 +145,7 @@ EOF
 ```
 
 ### 10. Create the kustomization.yaml
-[Read about kustomize plugins](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md)
+[Read about kustomize plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/)
 
 ```bash
 cat <<EOF > kustomization.yaml
@@ -164,7 +164,7 @@ kustomize build --enable_alpha_plugins .
 ### Troubleshooting
 
 #### kustomize Go Plugin Caveats
-[Detailed example of kustomize Go plugin](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginGuidedExample.md)
+[Detailed example of kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/gopluginguidedexample/)
 
 #### Sanity Checks
 - Validate `ksops.so` is in the `kustomize` plugin path
@@ -184,12 +184,12 @@ https://github.com/viaduct-ai/kustomize-sops/issues
 
 ## Generator Options
 
-`KSOPS` supports the same annotation based generator options as [kustomize exec plugins](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md#generator-options). The supported annotations are:
+`KSOPS` supports the same annotation based generator options as [kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#generator-options). The supported annotations are:
 
 - `kustomize.config.k8s.io/needs-hash`
 - `kustomize.config.k8s.io/behavior`
 
-For information, read the [kustomize exec plugin generator options documentation](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md#generator-options).
+For information, read the [kustomize generator options documentation](https://github.com/kubernetes-sigs/kustomize/blob/master/examples/generatorOptions.md).
 
 ### Encrypted Secret Overlays w/ Generator Options
 
