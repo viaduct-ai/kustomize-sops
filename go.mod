@@ -22,6 +22,6 @@ require (
 	go.mozilla.org/sops/v3 v3.5.0
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6 // indirect
 	gopkg.in/ini.v1 v1.52.0 // indirect
-	sigs.k8s.io/kustomize/api v0.4.1
+	sigs.k8s.io/kustomize/api v0.5.0
 	sigs.k8s.io/yaml v1.2.0
 )
