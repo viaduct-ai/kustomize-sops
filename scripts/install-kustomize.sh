@@ -5,7 +5,7 @@ KUSTOMIZE="kustomize"
 
 function install_kustomize() {
   echo "Installing $KUSTOMIZE..."
-  GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/v3@v3.6.1
+  GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/v3@v3.8.0
 
   echo "Successfully installed $KUSTOMIZE!"
   kustomize version
