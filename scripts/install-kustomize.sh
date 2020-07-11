@@ -10,7 +10,7 @@ function install_kustomize() {
   KSOPS_VERSION=$(git rev-parse HEAD)
   KSOPS_TAG=$(git describe --exact-match --tags HEAD 2>/dev/null || true )
   LDFLAGS="-X sigs.k8s.io/kustomize/api/provenance.buildDate=${BUILD_DATE}"
-  LDFLAGS+=" -X sigs.k8s.io/kustomize/api/provenance.gitCommit=$(curl --silent 'https://api.github.com/repos/kubernetes-sigs/kustomize/commits?sha=kustomize/v3.8.0' | jq -r '.[0].sha')"
+  LDFLAGS+=" -X sigs.k8s.io/kustomize/api/provenance.gitCommit=v3@${KUSTOMIZE_VERSION}"
   if [ ! -z $KSOPS_TAG ]; then
     KSOPS_VERSION=$KSOPS_TAG
   fi
