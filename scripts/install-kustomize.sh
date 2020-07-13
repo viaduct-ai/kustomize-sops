@@ -5,7 +5,17 @@ KUSTOMIZE="kustomize"
 
 function install_kustomize() {
   echo "Installing $KUSTOMIZE..."
-  GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/v3@v3.8.0
+  KUSTOMIZE_VERSION='v3.8.0'
+  BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+  KSOPS_VERSION=$(git rev-parse HEAD)
+  KSOPS_TAG=$(git describe --exact-match --tags HEAD 2>/dev/null || true )
+  LDFLAGS="-X sigs.k8s.io/kustomize/api/provenance.buildDate=${BUILD_DATE}"
+  LDFLAGS+=" -X sigs.k8s.io/kustomize/api/provenance.gitCommit=v3@${KUSTOMIZE_VERSION}"
+  if [ ! -z $KSOPS_TAG ]; then
+    KSOPS_VERSION=$KSOPS_TAG
+  fi
+  LDFLAGS+=" -X sigs.k8s.io/kustomize/api/provenance.version=${KUSTOMIZE_VERSION}+ksops.${KSOPS_VERSION}"
+  GO111MODULE=on go get -ldflags "${LDFLAGS}" sigs.k8s.io/kustomize/kustomize/v3@$KUSTOMIZE_VERSION
 
   echo "Successfully installed $KUSTOMIZE!"
   kustomize version
@@ -31,4 +41,3 @@ else
     # Install
     install_kustomize
 fi
-
