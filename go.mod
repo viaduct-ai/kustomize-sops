@@ -24,6 +24,6 @@ require (
 	gopkg.in/ini.v1 v1.52.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71 // indirect
 	k8s.io/client-go v0.17.3 // indirect
-	sigs.k8s.io/kustomize/api v0.5.0
+	sigs.k8s.io/kustomize/api v0.5.1
 	sigs.k8s.io/yaml v1.2.0
 )
