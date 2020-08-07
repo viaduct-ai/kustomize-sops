@@ -63,7 +63,10 @@ func (p *plugin) Generate() (resmap.ResMap, error) {
 
 		// absorb all (i.e merge/replace colliding IDs)
 		if resources != nil {
-			resources.AbsorbAll(r)
+			err = resources.AbsorbAll(r)
+			if err != nil {
+				return nil, errors.Wrapf(err, "trouble absorbing resources described in '%s'", f)
+			}
 		} else {
 			// initialize first resmap
 			resources = r
