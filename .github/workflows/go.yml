@@ -11,8 +11,8 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        go: [1.13, 1.14]
+        os: [ubuntu-latest]
+        go: [1.14]
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}
     steps:
