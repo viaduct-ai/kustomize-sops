@@ -19,7 +19,6 @@ require (
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/securego/gosec v0.0.0-20191002120514-e680875ea14d
 	go.mozilla.org/sops/v3 v3.6.0
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6 // indirect
 	gopkg.in/ini.v1 v1.52.0 // indirect
