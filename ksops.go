@@ -9,7 +9,11 @@ KSOPS, or kustomize-SOPS, is a kustomize plugin for SOPS encrypted resources. KS
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -31,6 +35,10 @@ const (
 type plugin struct {
 	rf    *resmap.Factory
 	ldr   ifc.Loader
+	Files []string `json:"files,omitempty" yaml:"files,omitempty"`
+}
+
+type ksops struct {
 	Files []string `json:"files,omitempty" yaml:"files,omitempty"`
 }
 
@@ -133,4 +141,34 @@ func decryptFile(p *plugin, f string) ([]byte, error) {
 	return decrypt.Data(b, "yaml")
 }
 
-func main() {}
+func main() {
+	fmt.Println("os.Args", os.Args)
+	if len(os.Args) != 2 {
+		fmt.Println("received too few args")
+		os.Exit(1)
+	}
+
+	// ignore the first file name argument
+	// load the second argument, the file path
+	content, _ := ioutil.ReadFile(os.Args[1])
+
+	fmt.Println("read", string(content))
+
+	var m ksops
+	_ = yaml.Unmarshal(content, &m)
+
+	fmt.Println("files", m.Files)
+	var output bytes.Buffer
+
+	for _, v := range m.Files {
+		b, err := ioutil.ReadFile(path.Join(path.Dir(os.Args[1]), v))
+		fmt.Println("read", string(b), err)
+		ed, err := decrypt.Data(b, "yaml")
+		fmt.Println("decrypt", string(ed), err)
+
+		output.Write(ed)
+		output.WriteString("---")
+	}
+
+	fmt.Print(output.String())
+}
