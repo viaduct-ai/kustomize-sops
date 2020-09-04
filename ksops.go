@@ -54,7 +54,7 @@ func (p *plugin) Generate() (resmap.ResMap, error) {
 
 	// validate the files key exists
 	if p.Files == nil {
-		return nil, errors.New("missing required 'files' key")
+		return nil, errors.New("missing the required 'files' key in the ksops manifests")
 	}
 
 	for _, f := range p.Files {
