@@ -49,6 +49,6 @@ jobs:
         run: |
           make sops
           # Github now comes with kustomize already installed
-          rm $((command -v $KUSTOMIZE)) || true
+          rm $(command -v kustomize) || true
           make kustomize
           XDG_CONFIG_HOME=$HOME/.config make test
