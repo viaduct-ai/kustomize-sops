@@ -52,6 +52,11 @@ func (p *plugin) Generate() (resmap.ResMap, error) {
 	// get a decrypted resmap for each files
 	var resources resmap.ResMap
 
+	// validate the files key exists
+	if p.Files == nil {
+		return nil, errors.New("missing required 'files' key")
+	}
+
 	for _, f := range p.Files {
 		// check for err
 		r, err := decryptResource(p, f)
