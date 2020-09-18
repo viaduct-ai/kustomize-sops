@@ -22,6 +22,6 @@ require (
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6 // indirect
 	gopkg.in/ini.v1 v1.52.0 // indirect
 	k8s.io/client-go v0.17.3 // indirect
-	sigs.k8s.io/kustomize/api v0.6.0
+	sigs.k8s.io/kustomize/api v0.6.1
 	sigs.k8s.io/yaml v1.2.0
 )
