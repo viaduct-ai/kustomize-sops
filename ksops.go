@@ -13,11 +13,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"strconv"
 
 	"github.com/pkg/errors"
+
+	"go.mozilla.org/sops/v3/cmd/sops/formats"
 	"go.mozilla.org/sops/v3/decrypt"
+
 	"sigs.k8s.io/kustomize/api/ifc"
 	"sigs.k8s.io/kustomize/api/resmap"
 	"sigs.k8s.io/kustomize/api/types"
@@ -146,33 +148,56 @@ func decryptFile(p *plugin, f string) ([]byte, error) {
 	return decrypt.Data(b, "yaml")
 }
 
+// main executes KOSPS as an exec plugin
 func main() {
-	fmt.Println("os.Args", os.Args)
 	if len(os.Args) != 2 {
-		fmt.Println("received too few args")
+		fmt.Println("received too few args:", os.Args)
+		fmt.Println("always invoke this via kustomize plugins")
 		os.Exit(1)
 	}
 
 	// ignore the first file name argument
 	// load the second argument, the file path
-	content, _ := ioutil.ReadFile(os.Args[1])
+	content, err := ioutil.ReadFile(os.Args[1])
 
-	fmt.Println("read", string(content))
+	if err != nil {
+		fmt.Println("unable to read in manifest", os.Args[1])
+		os.Exit(1)
+	}
 
-	var m ksops
-	_ = yaml.Unmarshal(content, &m)
+	var manifest ksops
+	err = yaml.Unmarshal(content, &manifest)
 
-	fmt.Println("files", m.Files)
+	if err != nil {
+		fmt.Printf("error unmarshalling manifest content: %q \n%s\n", err, content)
+		os.Exit(1)
+	}
+
+	if manifest.Files == nil {
+		fmt.Println("missing the required 'files' key in the ksops manifests")
+		os.Exit(1)
+	}
+
 	var output bytes.Buffer
 
-	for _, v := range m.Files {
-		b, err := ioutil.ReadFile(path.Join(path.Dir(os.Args[1]), v))
-		fmt.Println("read", string(b), err)
-		ed, err := decrypt.Data(b, "yaml")
-		fmt.Println("decrypt", string(ed), err)
+	for _, file := range manifest.Files {
+		b, err := ioutil.ReadFile(file)
 
-		output.Write(ed)
-		output.WriteString("---")
+		if err != nil {
+			fmt.Printf("error reading %q: %q\n", file, err.Error())
+			os.Exit(1)
+		}
+
+		format := formats.FormatForPath(file)
+		data, err := decrypt.DataWithFormat(b, format)
+
+		if err != nil {
+			fmt.Printf("trouble decrypting file %s", err.Error())
+			os.Exit(1)
+		}
+
+		output.Write(data)
+		output.WriteString("\n---\n")
 	}
 
 	fmt.Print(output.String())
