@@ -143,24 +143,3 @@ func TestKSOPSPluginBehaviorAnnotation(t *testing.T) {
 		t.Errorf("expected resource to have behavior %d (replace), but has %d", types.BehaviorReplace, resource.Behavior())
 	}
 }
-
-// TestKSOPSExecPlugin uses a test file with an absolute path from the root of the repo.
-// This is not necessary when using the exec plugin with kustomize
-func TestKSOPSExecPlugin(t *testing.T) {
-	th := kusttest_test.MakeEnhancedHarness(t)
-
-	defer th.Reset()
-
-	th.ResetLoaderRoot(pluginTestDir)
-
-	// Load files from testing directory
-	generatorResource, err := ioutil.ReadFile(path.Join(localTestDir, "exec-generate-multiple-resources.yaml"))
-	check(err)
-
-	decryptedResource, err := ioutil.ReadFile(path.Join(localTestDir, decryptedMultipleResourceFile))
-	check(err)
-
-	m := th.LoadAndRunGenerator(string(generatorResource))
-
-	th.AssertActualEqualsExpected(m, string(decryptedResource))
-}
