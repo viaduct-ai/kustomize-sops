@@ -1,5 +1,5 @@
 apiVersion: viaduct.ai/v1
-kind: ksops
+kind: ksops-exec
 metadata:
   name: ksops-exec-multiple-generator
 files:

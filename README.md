@@ -7,7 +7,8 @@
  - [Background](#background)
  - [Overview](#overview)
  - [Requirements](#requirements)
- - [Example](#example)
+ - [Installation Options](#installation-options)
+ - [Getting Started](#getting-started)
  - [Generator Options](#generator-options)
  - [Development and Testing](#development-and-testing)
  - [Argo CD Integration 🤖](#argo-cd-integration-)
@@ -28,7 +29,30 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 - [SOPS](https://github.com/mozilla/sops)
 - gpg
 
-## Example
+
+## Installation Options
+
+### Go Plugin
+
+KSOPS was origianlly developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option. To install, follow steps 0-3 of the [Getting Started section](#getting-started) and then run `make install`.
+
+### [Experimental] Exec Plugin 
+
+[kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) offers a simpler installation and dependency management alternative to [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) at the cost of debugability (error messages are swallowed). By popular demand, we now offer support for KSOPS as a kustomize exec plugin.
+
+Currently, the new KSOPS exec plugin is opt-in. It is installed as a new plugin, `ksops-exec`, when you run `make install`. To switch a manifest to use the new exec plugin, you can simply change the `kind` in the generator manifest.
+
+```yaml
+apiVersion: viaduct.ai/v1
+kind: ksops-exec
+```
+
+Alternatively, you can choose to switch over entirely to the exec plugin by running `make install-exec-only`. This will install the exec plugin under both `ksops` and `ksops-exec`, so your existing generator manifests will use the exec plugin.
+
+Please provide feedback, ideas, and make an issue if you have questions or run into issues!
+
+
+## Getting Started
 
 ### 0. Verify Requirements  
 Before continuing, verify your installation of [Go](https://github.com/golang/go), [SOPS](https://github.com/mozilla/sops), and `gpg`. Below are a few non-comprehensive commands to quickly check your installations:
