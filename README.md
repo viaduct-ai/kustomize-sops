@@ -34,7 +34,7 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 ### Go Plugin
 
-KSOPS was origianlly developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option. To install, follow steps 0-3 of the [Getting Started section](#getting-started) and then run `make install`.
+KSOPS was originally developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option. To install, follow steps 0-3 of the [Getting Started section](#getting-started) and then run `make install`.
 
 ### [Experimental] Exec Plugin 
 
@@ -47,7 +47,14 @@ apiVersion: viaduct.ai/v1
 kind: ksops-exec
 ```
 
-Alternatively, you can choose to switch over entirely to the exec plugin by running `make install-exec-only`. This will install the exec plugin under both `ksops` and `ksops-exec`, so your existing generator manifests will use the exec plugin.
+Alternatively, you can choose to switch over entirely to the exec plugin by running 
+
+```bash
+# install exec plugin under ksops
+make install-exec-only
+```
+
+This will install the exec plugin under both `ksops` and `ksops-exec`, so your existing generator manifests will use the exec plugin.
 
 Please provide feedback, ideas, and make an issue if you have questions or run into issues!
 
