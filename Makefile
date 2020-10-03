@@ -5,7 +5,7 @@ EXEC_PLUGIN_NAME="ksops"
 default: install
 
 .PHONY: install
-install: clean build install-plugin
+install: go-install clean build install-plugin
 
 .PHONY: install-exec-only
 install-exec-only: clean build install-exec-plugin
@@ -61,6 +61,10 @@ test: install setup-test-files go-test
 .PHONY: setup-test-files
 setup-test-files:
 	./scripts/setup-test-files.sh
+
+.PHONY: go-install
+go-install:
+	go install
 
 .PHONY: go-test
 go-test:
