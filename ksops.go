@@ -14,6 +14,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"go.mozilla.org/sops/v3/cmd/sops/formats"
 	"go.mozilla.org/sops/v3/decrypt"
 
 	"sigs.k8s.io/kustomize/api/ifc"
@@ -137,5 +138,7 @@ func decryptFile(p *plugin, f string) ([]byte, error) {
 		return b, errors.Wrapf(err, "trouble reading file %s", f)
 	}
 
-	return decrypt.Data(b, "yaml")
+	format := formats.FormatForPath(f)
+
+	return decrypt.DataWithFormat(b, format)
 }
