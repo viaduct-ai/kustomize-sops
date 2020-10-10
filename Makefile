@@ -34,6 +34,7 @@ clean:
 	rm $(GO_PLUGIN_NAME) || true
 	rm $(EXEC_PLUGIN_NAME) || true
 	rm -rf $(XDG_CONFIG_HOME)/kustomize/plugin/viaduct.ai/v1/ || true
+	rm -rf $(HOME)/sigs.k8s.io/kustomize/plugin/viaduct.ai/v1/ || true
 
 .PHONY: kustomize
 kustomize:
