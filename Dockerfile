@@ -21,8 +21,7 @@ ADD . .
 RUN git checkout $KSOPS_REVISION
 
 # Perform the build
-RUN go install
-RUN go build -buildmode plugin -o ${PKG_NAME}.so ${PKG_NAME}.go
+RUN make install
 
 # Install kustomize via Go
 RUN make kustomize
