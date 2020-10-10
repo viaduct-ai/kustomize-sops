@@ -1,5 +1,4 @@
 ARG GO_VERSION="1.14"
-ARG KSOPS_REVISION="master"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
@@ -12,13 +11,16 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 ENV GO111MODULE=on
 
+# Define kustomize config location
+ENV XDG_CONFIG_HOME=$HOME/.config
+
 ARG PKG_NAME=ksops
 
 WORKDIR /go/src/github.com/viaduct-ai/kustomize-sops
 
 ADD . .
 
-RUN git checkout $KSOPS_REVISION
+RUN ls 
 
 # Perform the build
 RUN make install
