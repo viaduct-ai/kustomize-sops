@@ -19,7 +19,6 @@ dockers:
   - image_templates:
       - "viaductoss/{{ .ProjectName }}:latest"
       - "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
-      - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-{{ .Env.GO_VERSION }}"
       - "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
 
     # Template of the docker build flags.
