@@ -20,8 +20,6 @@ WORKDIR /go/src/github.com/viaduct-ai/kustomize-sops
 
 ADD . .
 
-RUN ls 
-
 # Perform the build
 RUN make install
 
