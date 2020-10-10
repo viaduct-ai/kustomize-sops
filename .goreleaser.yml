@@ -14,21 +14,6 @@ builds:
       - darwin
     binary: "{{ .ProjectName }}"
 
-dockers:
-  # Templates of the Docker image names.
-  - image_templates:
-      - "viaductoss/{{ .ProjectName }}:latest"
-      - "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
-      - "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
-
-    # Template of the docker build flags.
-    build_flag_templates:
-      - "--pull"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-
 archives:
   - replacements:
       darwin: Darwin
@@ -46,3 +31,42 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+
+release:
+  github:
+    owner: viaduct-ai
+    name: kustomize-sops
+
+dockers:
+  # Templates of the Docker image names.
+  - image_templates:
+      - "viaductoss/{{ .ProjectName }}:latest"
+      - "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
+      - "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
+
+    # Template of the docker build flags.
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+
+    # If your Dockerfile copies files other than the binary itself,
+    # you should list them here as well.
+    # Note that goreleaser will create the same structure inside the temporary
+    # folder, so if you add `foo/bar.json` here, on your Dockerfile you can
+    # `COPY foo/bar.json /whatever.json`.
+    # Also note that the paths here are relative to the folder in which
+    # goreleaser is being run.
+    # This field does not support wildcards, you can add an entire folder here
+    # and use wildcards when you `COPY`/`ADD` in your Dockerfile.
+    extra_files:
+    - go.mod
+    - go.sum
+    - Makefile
+    - scripts/
+    - exec_plugin.go
+    - ksops.go
+    # include .git for version
+    - .git/
