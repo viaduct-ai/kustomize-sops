@@ -12,6 +12,8 @@ builds:
       - linux
       - windows
       - darwin
+    binary: "{{ .ProjectName }}"
+
 dockers:
   # Templates of the Docker image names.
   - image: "viaductoss/{{ .ProjectName }}"
