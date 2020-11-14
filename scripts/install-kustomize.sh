@@ -5,7 +5,7 @@ KUSTOMIZE="kustomize"
 
 function install_kustomize() {
   echo "Installing $KUSTOMIZE..."
-  KUSTOMIZE_VERSION='v3.8.6'
+  KUSTOMIZE_VERSION='v3.8.7'
   BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
   KSOPS_VERSION=$(git rev-parse HEAD)
   KSOPS_TAG=$(git describe --exact-match --tags HEAD 2>/dev/null || true )
