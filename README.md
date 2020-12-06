@@ -294,7 +294,7 @@ make test
 
 ## Argo CD Integration 🤖
 
-`KSOPS` becomes even more powerful when integrated with a CI/CD pipeline. By combining `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/), you can manage Kubernetes secrets via the same Git Ops pattern you use to manage the rest of your kubernetes manifests. To integrate `KSOPS` and [Argo CD](https://github.com/argoproj/argo-cd/), you will need to update the Argo CD ConifgMap and create a [strategic merge patch](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-api-machinery/strategic-merge-patch.md) or a [custom Argo CD build](https://argoproj.github.io/argo-cd/operator-manual/custom_tools/#byoi-build-your-own-image). Don't forget to inject any necessary credentials (i.e AWS credentials) when deploying the [Argo CD](https://github.com/argoproj/argo-cd/) + `KSOPS` build!
+`KSOPS` becomes even more powerful when integrated with a CI/CD pipeline. By combining `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/), you can manage Kubernetes secrets via the same Git Ops pattern you use to manage the rest of your kubernetes manifests. To integrate `KSOPS` and [Argo CD](https://github.com/argoproj/argo-cd/), you will need to update the Argo CD ConifgMap and create a [strategic merge patch](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-api-machinery/strategic-merge-patch.md) or a [custom Argo CD build](https://argoproj.github.io/argo-cd/operator-manual/custom_tools/#byoi-build-your-own-image). As an alternative you can also use the [Argo CD Helm Chart](https://github.com/argoproj/argo-helm/tree/master/charts/argo-cd) with [custom values](#argo-cd-helm-chart-with-custom-tooling). Don't forget to inject any necessary credentials (i.e AWS credentials) when deploying the [Argo CD](https://github.com/argoproj/argo-cd/) + `KSOPS` build!
 
 
 [KSOPS Docker Image](https://hub.docker.com/r/viaductoss/ksops)
@@ -378,7 +378,7 @@ spec:
 
 Alternatively, for more control and faster pod start times you can build a custom docker image.
 
- ```Dockerfile
+```Dockerfile
 ARG ARGO_CD_VERSION="v1.7.7"
 # Always match Argo CD Dockerfile's Go version!
 # https://github.com/argoproj/argo-cd/blob/master/Dockerfile
@@ -413,4 +413,51 @@ COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/*  $KUSTO
 
 # Switch back to non-root user
 USER argocd
+```
+
+### Argo CD Helm Chart with Custom Tooling
+
+We can setup `KSOPS` custom tooling in the [Argo CD Chart](https://github.com/argoproj/argo-helm/tree/master/charts/argo-cd) with the following values:
+
+```yaml
+# Enable Kustomize Alpha Plugins via Argo CD ConfigMap, required for ksops
+server:
+  config:
+    kustomize.buildOptions: "--enable_alpha_plugins"
+
+repoServer:
+  # Set the XDG_CONFIG_HOME env variable to allow kustomize to detect the plugin
+  env:
+  - name: XDG_CONFIG_HOME
+    value: /.config
+
+  # Use init containers to configure custom tooling
+  # https://argoproj.github.io/argo-cd/operator-manual/custom_tools/
+  volumes:
+  - name: custom-tools
+    emptyDir: {}
+
+  initContainers:
+  - name: install-ksops
+    # match Argo CD Go version from latest helm chart
+    # (at the time of writing, chart: 2.10.0/app: 1.7.6)
+    image: viaductoss/ksops:v2.1.3-go-1.14
+    command: ["/bin/sh", "-c"]
+    args:
+      - echo "Installing KSOPS...";
+        export PKG_NAME=ksops;
+        mv ${PKG_NAME}.so /custom-tools/;
+        mv $GOPATH/bin/kustomize /custom-tools/;
+        echo "Done.";
+    volumeMounts:
+      - mountPath: /custom-tools
+        name: custom-tools
+  volumeMounts:
+  - mountPath: /usr/local/bin/kustomize
+    name: custom-tools
+    subPath: kustomize
+    # Verify this matches a XDG_CONFIG_HOME=/.config env variable
+  - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops.so
+    name: custom-tools
+    subPath: ksops.so
 ```
