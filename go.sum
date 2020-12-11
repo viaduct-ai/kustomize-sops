@@ -605,8 +605,7 @@ github.com/timakin/bodyclose v0.0.0-20190930140734-f7f2e9bca95e/go.mod h1:Qimiff
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
-github.com/ulikunitz/xz v0.5.5 h1:pFrO0lVpTBXLpYw+pnLj6TbvHuyjXMfjGeCwSqCVwok=
-github.com/ulikunitz/xz v0.5.5/go.mod h1:2bypXElzHzzJZwzH67Y6wb67pO62Rzfn7BSiF4ABRW8=
+github.com/ulikunitz/xz v0.5.8 h1:ERv8V6GKqVi23rgu5cj9pVfVzJbOqAY2Ntl88O6c2nQ=
 github.com/ulikunitz/xz v0.5.8/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
 github.com/ultraware/funlen v0.0.2/go.mod h1:Dp4UiAus7Wdb9KUZsYWZEWiRzGuM2kXM1lPbfaF6xhA=
 github.com/ultraware/whitespace v0.0.4/go.mod h1:aVMh/gQve5Maj9hQ/hg+F75lr/X5A89uZnzAmWSineA=
@@ -622,8 +621,7 @@ github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca h1:1CFlNzQhALwjS9mB
 github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca/go.mod h1:ce1O1j6UtZfjr22oyGxGLbauSBp2YVXpARAosm7dHBg=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
-github.com/yujunz/go-getter v1.4.1-lite h1:FhvNc94AXMZkfqUwfMKhnQEC9phkphSGdPTL7tIdhOM=
-github.com/yujunz/go-getter v1.4.1-lite/go.mod h1:sbmqxXjyLunH1PkF3n7zSlnVeMvmYUuIl9ZVs/7NyCc=
+github.com/yujunz/go-getter v1.5.1-lite.0.20201201013212-6d9c071adddf h1:gvEmqF83GB8R5XtrMseJb6A6R0OCtNAS8f4TmZg2dGc=
 github.com/yujunz/go-getter v1.5.1-lite.0.20201201013212-6d9c071adddf/go.mod h1:bL0Pr07HEdsMZ1WBqZIxXj96r5LnFsY4LgPaPEGkw1k=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.mongodb.org/mongo-driver v1.0.3/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qLUO4lqsUM=
@@ -948,11 +946,9 @@ mvdan.cc/unparam v0.0.0-20190720180237-d51796306d8f/go.mod h1:4G1h5nDURzA3bwVMZI
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
-sigs.k8s.io/kustomize/api v0.6.5 h1:xaAWZamIhpt9Y5Kn/vuBcBhZH8/m0zwew1d4HepIgXg=
-sigs.k8s.io/kustomize/api v0.6.5/go.mod h1:Z96Z48h3nOWgVAmd4JGABszi5znhEnz7xoWHy+Bl7L4=
+sigs.k8s.io/kustomize/api v0.7.0 h1:djxH9k1izeU1BvdP1i23qqKwhmWu2BuKNEKr/Da7Dpw=
 sigs.k8s.io/kustomize/api v0.7.0/go.mod h1:3TxKEyaxwOIfHmRbQF14hDUSRmVQI0iSn8qDA5zaO/0=
-sigs.k8s.io/kustomize/kyaml v0.9.4 h1:DDuzZtjIzFqp2IPy4DTyCI69Cl3bDgcJODjI6sjF9NY=
-sigs.k8s.io/kustomize/kyaml v0.9.4/go.mod h1:UTm64bSWVdBUA8EQoYCxVOaBQxUdIOr5LKWxA4GNbkw=
+sigs.k8s.io/kustomize/kyaml v0.10.3 h1:ARSJUMN/c3k31DYxRfZ+vp/UepUQjg9zCwny7Oj908I=
 sigs.k8s.io/kustomize/kyaml v0.10.3/go.mod h1:RA+iCHA2wPCOfv6uG6TfXXWhYsHpgErq/AljxWKuxtg=
 sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e/go.mod h1:wWxsB5ozmmv/SG7nM11ayaAW51xMvak/t1r0CSlcokI=
 sigs.k8s.io/yaml v1.1.0 h1:4A07+ZFc2wgJwo8YNlQpr1rVlgUDlxXHhPJciaPY5gs=
