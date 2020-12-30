@@ -36,7 +36,7 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 KSOPS was originally developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option. To install, follow steps 0-3 of the [Getting Started section](#getting-started) and then run `make install`.
 
-### [Experimental] Exec Plugin 
+### Exec Plugin
 
 [kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) offers a simpler installation and dependency management alternative to [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) at the cost of debugability (error messages are swallowed). By popular demand, we now offer support for KSOPS as a kustomize exec plugin.
 
@@ -47,21 +47,30 @@ apiVersion: viaduct.ai/v1
 kind: ksops-exec
 ```
 
-Alternatively, you can choose to switch over entirely to the exec plugin by running 
+Alternatively, you can choose to switch over entirely to the exec plugin by running one of the following commands:
+
+
+#### Remotely Download the Latest Release
+```bash
+# Verify the $XDG_CONFIG_HOME environment variable exists then run
+source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh)
+```
+
+#### Run `make install-exec-only` with the Cloned Repo Locally
 
 ```bash
 # install exec plugin under ksops
 make install-exec-only
 ```
 
-This will install the exec plugin under both `ksops` and `ksops-exec`, so your existing generator manifests will use the exec plugin.
+These will install the exec plugin under both `ksops` and `ksops-exec`, so your existing generator manifests will use the exec plugin.
 
 Please provide feedback, ideas, and make an issue if you have questions or run into issues!
 
 
 ## Getting Started
 
-### 0. Verify Requirements  
+### 0. Verify Requirements
 Before continuing, verify your installation of [Go](https://github.com/golang/go), [SOPS](https://github.com/mozilla/sops), and `gpg`. Below are a few non-comprehensive commands to quickly check your installations:
 
 ```bash
@@ -234,7 +243,7 @@ kind: Secret
 metadata:
   name: argocd-secret
   annotations:
-      # replace the base secret data/stringData values with these encrypted data/stringData values 
+      # replace the base secret data/stringData values with these encrypted data/stringData values
       kustomize.config.k8s.io/behavior: replace
 type: Opaque
 data:
@@ -251,7 +260,7 @@ kind: Secret
 metadata:
   name: argocd-secret
   annotations:
-      # merge the base secret data/stringData values with these encrypted data/stringData values 
+      # merge the base secret data/stringData values with these encrypted data/stringData values
       kustomize.config.k8s.io/behavior: merge
 type: Opaque
 data:
