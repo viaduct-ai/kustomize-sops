@@ -15,12 +15,24 @@ builds:
     binary: "{{ .ProjectName }}"
 
 archives:
-  - replacements:
+  - id: default
+    replacements:
       darwin: Darwin
       linux: Linux
       windows: Windows
       386: i386
       amd64: x86_64
+
+  - id: latest
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+
+    name_template: "{{ .ProjectName }}_latest_{{ .Os }}_{{ .Arch }}"
+
 checksum:
   name_template: 'checksums.txt'
 snapshot:
