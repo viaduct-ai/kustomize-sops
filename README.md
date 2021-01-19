@@ -307,6 +307,7 @@ make test
 
 
 [KSOPS Docker Image](https://hub.docker.com/r/viaductoss/ksops)
+
 [KSOPS Quay.io Image](https://quay.io/repository/viaductoss/ksops)
 
 ### Enable Kustomize Plugins via Argo CD ConfigMap
