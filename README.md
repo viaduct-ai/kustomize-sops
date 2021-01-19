@@ -307,6 +307,7 @@ make test
 
 
 [KSOPS Docker Image](https://hub.docker.com/r/viaductoss/ksops)
+[KSOPS Quay.io Image](https://quay.io/repository/viaductoss/ksops)
 
 ### Enable Kustomize Plugins via Argo CD ConfigMap
 As of now to allow [Argo CD](https://github.com/argoproj/argo-cd/) to use [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugins you must use the `enable_alpha_plugins` flag. This is configured by the `kustomize.buildOptions` setting in the [Argo CD](https://github.com/argoproj/argo-cd/) ConfigMap
