@@ -55,6 +55,9 @@ dockers:
       - "viaductoss/{{ .ProjectName }}:latest"
       - "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
       - "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
+      - "quay.io/viaductoss/{{ .ProjectName }}:latest"
+      - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}"
+      - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}"
 
     # Template of the docker build flags.
     build_flag_templates:
@@ -74,11 +77,11 @@ dockers:
     # This field does not support wildcards, you can add an entire folder here
     # and use wildcards when you `COPY`/`ADD` in your Dockerfile.
     extra_files:
-    - go.mod
-    - go.sum
-    - Makefile
-    - scripts/
-    - exec_plugin.go
-    - ksops.go
-    # include .git for version
-    - .git/
+      - go.mod
+      - go.sum
+      - Makefile
+      - scripts/
+      - exec_plugin.go
+      - ksops.go
+      # include .git for version
+      - .git/
