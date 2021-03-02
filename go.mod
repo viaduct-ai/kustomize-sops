@@ -1,6 +1,6 @@
 module github.com/viaduct-ai/kustomize-sops
 
-go 1.14
+go 1.15
 
 require (
 	cloud.google.com/go v0.53.0 // indirect
