@@ -15,7 +15,7 @@ function install_kustomize() {
     KSOPS_VERSION=$KSOPS_TAG
   fi
   LDFLAGS+=" -X sigs.k8s.io/kustomize/api/provenance.version=${KUSTOMIZE_VERSION}+ksops.${KSOPS_VERSION}"
-  GO111MODULE=on go get -ldflags "${LDFLAGS}" sigs.k8s.io/kustomize/kustomize/v3@$KUSTOMIZE_VERSION
+  GO111MODULE=on go get -ldflags "${LDFLAGS}" sigs.k8s.io/kustomize/kustomize/v4@$KUSTOMIZE_VERSION
 
   echo "Successfully installed $KUSTOMIZE!"
   kustomize version
