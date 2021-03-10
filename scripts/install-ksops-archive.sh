@@ -45,4 +45,5 @@ esac
 echo "Downloading latest release to ksops plugin path"
 wget -c https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz -O - | tar -xz -C $PLUGIN_PATH
 cp  $PLUGIN_PATH* $EXEC_PLUGIN_PATH
+mv $EXEC_PLUGIN_PATH/ksops $EXEC_PLUGIN_PATH/ksops-exec
 echo "Successfully installed ksops"
