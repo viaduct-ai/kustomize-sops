@@ -198,7 +198,7 @@ EOF
 
 ```bash
 # Build with kustomize to verify
-kustomize build --enable_alpha_plugins .
+kustomize build --enable-alpha-plugins .
 ```
 
 ### Troubleshooting
@@ -311,7 +311,7 @@ make test
 [KSOPS Quay.io Image](https://quay.io/repository/viaductoss/ksops)
 
 ### Enable Kustomize Plugins via Argo CD ConfigMap
-As of now to allow [Argo CD](https://github.com/argoproj/argo-cd/) to use [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugins you must use the `enable_alpha_plugins` flag. This is configured by the `kustomize.buildOptions` setting in the [Argo CD](https://github.com/argoproj/argo-cd/) ConfigMap
+As of now to allow [Argo CD](https://github.com/argoproj/argo-cd/) to use [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugins you must use the `enable-alpha-plugins` flag. This is configured by the `kustomize.buildOptions` setting in the [Argo CD](https://github.com/argoproj/argo-cd/) ConfigMap
 
 ```yaml
 apiVersion: v1
@@ -322,7 +322,7 @@ metadata:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
 data:
-  kustomize.buildOptions: "--enable_alpha_plugins"
+  kustomize.buildOptions: "--enable-alpha-plugins"
 ```
 
 ### KSOPS Repo Sever Patch
@@ -434,7 +434,7 @@ We can setup `KSOPS` custom tooling in the [Argo CD Chart](https://github.com/ar
 # Enable Kustomize Alpha Plugins via Argo CD ConfigMap, required for ksops
 server:
   config:
-    kustomize.buildOptions: "--enable_alpha_plugins"
+    kustomize.buildOptions: "--enable-alpha-plugins"
 
 repoServer:
   # Set the XDG_CONFIG_HOME env variable to allow kustomize to detect the plugin
