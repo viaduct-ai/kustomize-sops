@@ -31,6 +31,14 @@ RUN make kustomize
 # Step 2: Multi-architecture
 FROM gcr.io/distroless/static:latest
 
-COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops /
+COPY --from=builder /.config /.config
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/go.* /
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/Makefile /
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/scripts/ /
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/exec_plugin.go /
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/ksops.go /
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/.git/ /
 
 USER nobody
+
+ENTRYPOINT ["/ksops"]
