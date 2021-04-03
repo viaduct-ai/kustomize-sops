@@ -4,6 +4,7 @@ ARG GO_VERSION="1.14"
 #--------Build KSOPS and Kustomize-----------#
 #--------------------------------------------#
 
+# Step 1: Builder
 FROM golang:$GO_VERSION as builder
 
 ARG TARGETPLATFORM
@@ -23,12 +24,13 @@ WORKDIR /go/src/github.com/viaduct-ai/kustomize-sops
 
 ADD . .
 
-# Perform the build
+# Perform the build and Install kustomize via Go
 RUN make install
-
-# Install kustomize via Go
 RUN make kustomize
 
+# Step 2: Multi-architecture
 FROM gcr.io/distroless/static:latest
+
 COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops /
+
 USER nobody

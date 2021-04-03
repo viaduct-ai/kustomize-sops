@@ -51,6 +51,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: ${{ startsWith(github.ref, 'refs/tags/v') }}
           tags: |
-            cguertin14/ksops:latest
-            cguertin14/ksops:${{ github.sha }}
-            cguertin14/ksops:${{ steps.prep.outputs.version }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/ksops:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/ksops:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/ksops:${{ steps.prep.outputs.version }}
