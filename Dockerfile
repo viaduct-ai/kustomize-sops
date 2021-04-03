@@ -1,10 +1,10 @@
-ARG GO_VERSION="1.14-alpine"
+ARG GO_VERSION="1.14"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
 #--------------------------------------------#
 
-FROM golang:$GO_VERSION
+FROM golang:$GO_VERSION as builder
 
 ARG TARGETPLATFORM
 ARG PKG_NAME=ksops
@@ -12,11 +12,7 @@ ARG PKG_NAME=ksops
 # Match Argo CD's build
 ENV GO111MODULE=on \
     # Define kustomize config location
-    XDG_CONFIG_HOME=$HOME/.config \
-		CGO_ENABLED=0
-
-# Run updates and add basic packages
-RUN apk add --no-cache --update git gcc make musl-dev build-base
+    XDG_CONFIG_HOME=$HOME/.config
 
 # Export templated Go env variables
 RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) && \
@@ -33,4 +29,6 @@ RUN make install
 # Install kustomize via Go
 RUN make kustomize
 
-CMD ["kustomize", "version"]
+FROM gcr.io/distroless/static:latest
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops /
+USER nobody
