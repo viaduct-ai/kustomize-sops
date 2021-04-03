@@ -66,6 +66,10 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64,linux/amd64"
+
+    # For multiple architectures
+    use_buildx: true
 
     # If your Dockerfile copies files other than the binary itself,
     # you should list them here as well.
