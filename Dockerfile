@@ -12,7 +12,8 @@ ARG PKG_NAME=ksops
 # Match Argo CD's build
 ENV GO111MODULE=on \
     # Define kustomize config location
-    XDG_CONFIG_HOME=$HOME/.config
+    XDG_CONFIG_HOME=$HOME/.config \
+		CGO_ENABLED=0
 
 # Run updates and add basic packages
 RUN apk add --no-cache --update git gcc make musl-dev build-base
