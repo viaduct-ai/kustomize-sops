@@ -37,6 +37,7 @@ COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/Makefile /
 COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/scripts/ /
 COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/exec_plugin.go /
 COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/ksops.go /
+COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/ksops /
 COPY --from=builder /go/src/github.com/viaduct-ai/kustomize-sops/.git/ /
 
 USER nobody
