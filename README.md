@@ -322,7 +322,9 @@ metadata:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
 data:
-  kustomize.buildOptions: "--enable_alpha_plugins"
+  # For KSOPs versions < v2.5.0, use the old kustomize flag style
+  # kustomize.buildOptions: "--enable_alpha_plugins"
+  kustomize.buildOptions: "--enable-alpha-plugins"
 ```
 
 ### KSOPS Repo Sever Patch
