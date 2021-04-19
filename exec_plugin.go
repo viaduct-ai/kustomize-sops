@@ -18,17 +18,16 @@ type ksops struct {
 // main executes KOSPS as an exec plugin
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Println("received too few args:", os.Args)
-		fmt.Println("always invoke this via kustomize plugins")
+		fmt.Fprintln(os.Stderr, "received too few args:", os.Args)
+		fmt.Fprintln(os.Stderr, "always invoke this via kustomize plugins")
 		os.Exit(1)
 	}
 
 	// ignore the first file name argument
 	// load the second argument, the file path
 	content, err := ioutil.ReadFile(os.Args[1])
-
 	if err != nil {
-		fmt.Println("unable to read in manifest", os.Args[1])
+		fmt.Fprintln(os.Stderr, "unable to read in manifest", os.Args[1])
 		os.Exit(1)
 	}
 
@@ -36,12 +35,12 @@ func main() {
 	err = yaml.Unmarshal(content, &manifest)
 
 	if err != nil {
-		fmt.Printf("error unmarshalling manifest content: %q \n%s\n", err, content)
+		fmt.Fprintf(os.Stderr, "error unmarshalling manifest content: %q \n%s\n", err, content)
 		os.Exit(1)
 	}
 
 	if manifest.Files == nil {
-		fmt.Println("missing the required 'files' key in the ksops manifests")
+		fmt.Fprintln(os.Stderr, "missing the required 'files' key in the ksops manifests")
 		os.Exit(1)
 	}
 
@@ -49,17 +48,15 @@ func main() {
 
 	for _, file := range manifest.Files {
 		b, err := ioutil.ReadFile(file)
-
 		if err != nil {
-			fmt.Printf("error reading %q: %q\n", file, err.Error())
+			fmt.Fprintf(os.Stderr, "error reading %q: %q\n", file, err.Error())
 			os.Exit(1)
 		}
 
 		format := formats.FormatForPath(file)
 		data, err := decrypt.DataWithFormat(b, format)
-
 		if err != nil {
-			fmt.Printf("trouble decrypting file %s", err.Error())
+			fmt.Fprintf(os.Stderr, "trouble decrypting file %s", err.Error())
 			os.Exit(1)
 		}
 
