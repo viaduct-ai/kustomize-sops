@@ -38,7 +38,7 @@ KSOPS was originally developed as a [kustomize Go plugin](https://kubernetes-sig
 
 ### Exec Plugin
 
-[kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) offers a simpler installation and dependency management alternative to [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) at the cost of debugability (error messages are swallowed). By popular demand, we now offer support for KSOPS as a kustomize exec plugin.
+[kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) offers a simpler installation and dependency management alternative to [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). By popular demand, we now offer support for KSOPS as a kustomize exec plugin.
 
 Currently, the new KSOPS exec plugin is opt-in. It is installed as a new plugin, `ksops-exec`, when you run `make install`. To switch a manifest to use the new exec plugin, you can simply change the `kind` in the generator manifest.
 
