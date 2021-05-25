@@ -347,7 +347,6 @@ spec:
       # 2. Use an init container to download/copy custom binaries into the emptyDir
       initContainers:
         - name: install-ksops
-          # Match Argo CD Go version
           image: viaductoss/ksops:v2.5.5
           command: ["/bin/sh", "-c"]
           args:
