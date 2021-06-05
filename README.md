@@ -38,7 +38,7 @@ KSOPS was originally developed as a [kustomize Go plugin](https://kubernetes-sig
 
 ### Exec Plugin
 
-[kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) offers a simpler installation and dependency management alternative to [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) at the cost of debugability (error messages are swallowed). By popular demand, we now offer support for KSOPS as a kustomize exec plugin.
+[kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) offers a simpler installation and dependency management alternative to [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). By popular demand, we now offer support for KSOPS as a kustomize exec plugin.
 
 Currently, the new KSOPS exec plugin is opt-in. It is installed as a new plugin, `ksops-exec`, when you run `make install`. To switch a manifest to use the new exec plugin, you can simply change the `kind` in the generator manifest.
 
@@ -322,6 +322,8 @@ metadata:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
 data:
+  # For KSOPs versions < v2.5.0, use the old kustomize flag style
+  # kustomize.buildOptions: "--enable_alpha_plugins"
   kustomize.buildOptions: "--enable-alpha-plugins"
 ```
 
@@ -345,8 +347,7 @@ spec:
       # 2. Use an init container to download/copy custom binaries into the emptyDir
       initContainers:
         - name: install-ksops
-          # Match Argo CD Go version
-          image: viaductoss/ksops:v2.5.4
+          image: viaductoss/ksops:v2.5.5
           command: ["/bin/sh", "-c"]
           args:
             - echo "Installing KSOPS...";
@@ -391,9 +392,8 @@ Alternatively, for more control and faster pod start times you can build a custo
 
 ```Dockerfile
 ARG ARGO_CD_VERSION="v1.7.7"
-# Always match Argo CD Dockerfile's Go version!
 # https://github.com/argoproj/argo-cd/blob/master/Dockerfile
-ARG KSOPS_VERSION="v2.5.4"
+ARG KSOPS_VERSION="v2.5.5"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
@@ -450,9 +450,7 @@ repoServer:
 
   initContainers:
   - name: install-ksops
-    # match Argo CD Go version from latest helm chart
-    # (at the time of writing, chart: 2.10.0/app: 1.7.6)
-    image: viaductoss/ksops:v2.5.4
+    image: viaductoss/ksops:v2.5.5
     command: ["/bin/sh", "-c"]
     args:
       - echo "Installing KSOPS...";

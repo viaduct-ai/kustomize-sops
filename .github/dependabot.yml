@@ -1,0 +1,19 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  reviewers:
+  - devstein
+  assignees:
+  - devstein
+  labels:
+  - dependencies
+  - please code review
+  ignore:
+  - dependency-name: sigs.k8s.io/kustomize/api
+    versions:
+    - 0.8.1
+    - 0.8.4
