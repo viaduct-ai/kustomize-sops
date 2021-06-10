@@ -4,7 +4,7 @@ set -e
 # Require $XDG_CONFIG_HOME to be set
 if [[ -z "$XDG_CONFIG_HOME" ]]; then
   echo "You must define XDG_CONFIG_HOME to use a kustomize plugin"
-  echo "Add 'export XDG_CONFIG_HOME=\$HOME/.config' to your .bashrc or .zshrc"
+  echo "Add 'export XDG_CONFIG_HOME=$HOME/.config' to your .bashrc or .zshrc"
   exit 1
 fi
 
