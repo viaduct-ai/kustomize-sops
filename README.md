@@ -347,7 +347,7 @@ spec:
       # 2. Use an init container to download/copy custom binaries into the emptyDir
       initContainers:
         - name: install-ksops
-          image: viaductoss/ksops:v2.5.5
+          image: viaductoss/ksops:v2.5.6
           command: ["/bin/sh", "-c"]
           args:
             - echo "Installing KSOPS...";
@@ -393,7 +393,7 @@ Alternatively, for more control and faster pod start times you can build a custo
 ```Dockerfile
 ARG ARGO_CD_VERSION="v1.7.7"
 # https://github.com/argoproj/argo-cd/blob/master/Dockerfile
-ARG KSOPS_VERSION="v2.5.5"
+ARG KSOPS_VERSION="v2.5.6"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
@@ -450,7 +450,7 @@ repoServer:
 
   initContainers:
   - name: install-ksops
-    image: viaductoss/ksops:v2.5.5
+    image: viaductoss/ksops:v2.5.6
     command: ["/bin/sh", "-c"]
     args:
       - echo "Installing KSOPS...";
