@@ -10,14 +10,11 @@ fi
 
 
 PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/"
-EXEC_PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops-exec/"
 
 
 echo "Verify ksops plugin directory exists and is empty"
 rm -rf $PLUGIN_PATH || true
-rm -rf $EXEC_PLUGIN_PATH || true
 mkdir -p $PLUGIN_PATH
-mkdir -p $EXEC_PLUGIN_PATH
 
 ARCH=$(uname -m)
 OS=""
@@ -44,6 +41,4 @@ esac
 
 echo "Downloading latest release to ksops plugin path"
 wget -c https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz -O - | tar -xz -C $PLUGIN_PATH
-cp  $PLUGIN_PATH* $EXEC_PLUGIN_PATH
-mv $EXEC_PLUGIN_PATH/ksops $EXEC_PLUGIN_PATH/ksops-exec
 echo "Successfully installed ksops"

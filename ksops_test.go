@@ -12,11 +12,6 @@ import (
 	"sigs.k8s.io/kustomize/api/types"
 )
 
-/*
-Based off of
-https://github.com/monopole/sopsencodedsecrets/blob/master/SopsEncodedSecrets_test.go
-
-*/
 const localTestDir = "./test/"
 const pluginTestDir = "/app"
 
