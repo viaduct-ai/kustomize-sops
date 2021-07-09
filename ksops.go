@@ -48,7 +48,7 @@ func main() {
 	}
 
 	if manifest.Files == nil {
-		fmt.Fprintln(os.Stderr, "missing the required 'files' key in the ksops manifests")
+		fmt.Fprintf(os.Stderr, "missing the required 'files' key in the ksops manifests: %s", content)
 		os.Exit(1)
 	}
 
@@ -58,6 +58,7 @@ func main() {
 		b, err := ioutil.ReadFile(file)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error reading %q: %q\n", file, err.Error())
+			fmt.Fprintf(os.Stderr, "manifest content: %s", content)
 			os.Exit(1)
 		}
 
