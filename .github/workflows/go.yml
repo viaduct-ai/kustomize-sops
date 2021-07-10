@@ -47,7 +47,6 @@ jobs:
           make build
       - name: Test
         run: |
-          make sops
           # Github now comes with kustomize already installed
           sudo rm $(command -v kustomize) || true
           make kustomize
