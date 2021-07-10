@@ -4,7 +4,7 @@ data:
   username: YWRtaW4=
 kind: Secret
 metadata:
-  name: mysecret-B
+  name: my-base-secret
 stringData:
   application: kustomize-sops
 type: Opaque

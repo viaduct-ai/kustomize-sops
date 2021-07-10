@@ -15,19 +15,10 @@ PLUGIN_NAME="ksops"
 # ------------------------
 
 PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/"
-# Unclear why the kustomize test harness looks for the plugin relative to the current path
-# https://github.com/kubernetes-sigs/kustomize/blob/master/api/internal/plugins/utils/utils.go#L22
-TEST_PLUGIN_PATH="$HOME/sigs.k8s.io/kustomize/plugin/viaduct.ai/v1/ksops/"
-
 
 mkdir -p $PLUGIN_PATH
-mkdir -p $TEST_PLUGIN_PATH
 
 # Make the plugin available to kustomize 
 echo "Copying plugin to the kustomize plugin path..."
 echo "cp $PLUGIN_NAME $PLUGIN_PATH"
 cp $PLUGIN_NAME $PLUGIN_PATH
-
-echo "Copying plugin to the test kustomize plugin path..."
-echo "cp $PLUGIN_NAME $TEST_PLUGIN_PATH"
-cp $PLUGIN_NAME $TEST_PLUGIN_PATH
