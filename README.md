@@ -236,11 +236,7 @@ make setup
 
 Testing `KSOPS` requires:
 
-1. Configuring a encryption key and other `SOPS` configuration in `.sops.yaml`
-2. Generating encrypted test files
-3. Running the Go tests
-
-Everything but setting up `.sops.yaml` is handle for you by `make test`. After defining `.sops.yaml`, test `KSOPS` running the following command from the repo's root directory:
+Everything is handled for you by `make test`. Just run it from the repo's root directory:
 
 ```bash
 make test
@@ -296,8 +292,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - echo "Installing KSOPS...";
-              export PKG_NAME=ksops;
-              mv ${PKG_NAME} /custom-tools/;
+              mv ksops /custom-tools/;
               mv $GOPATH/bin/kustomize /custom-tools/;
               echo "Done.";
           volumeMounts:
