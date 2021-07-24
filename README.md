@@ -399,7 +399,7 @@ repoServer:
     command: ["/bin/sh", "-c"]
     args:
       - echo "Installing KSOPS...";
-        export PKG_NAME=ksops;
+        mv ksops /custom-tools/;
         mv $GOPATH/bin/kustomize /custom-tools/;
         echo "Done.";
     volumeMounts:
