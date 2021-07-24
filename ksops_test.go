@@ -8,16 +8,22 @@ import (
 	"io/ioutil"
 	"os/exec"
 	"path"
+	"strings"
 	"testing"
 )
 
-func runKSOPSPluginIntegrationTest(t *testing.T, testDir string) {
+func runKSOPSPluginIntegrationTest(t *testing.T, testDir string, kustomizeVersion string) {
 	want, err := ioutil.ReadFile(path.Join(testDir, "want.yaml"))
 	if err != nil {
 		t.Fatalf("error readding expected resources file %s: %v", path.Join(testDir, "want.yaml"), err)
 	}
 
-	cmd := exec.Command("kustomize", "build", "--enable-alpha-plugins", testDir)
+	pluginFlag := "--enable-alpha-plugins"
+	if kustomizeVersion == "v3" {
+		pluginFlag = "--enable_alpha_plugins"
+	}
+
+	cmd := exec.Command("kustomize", "build", pluginFlag, testDir)
 	out := bytes.Buffer{}
 	cmd.Stdout = &out
 	cmd.Stderr = &out
@@ -52,9 +58,36 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 		},
 	}
 
+	// run kustomize version to validate installation
+	// and get kustomize version
+	cmd := exec.Command("kustomize", "version")
+	stdOut := bytes.Buffer{}
+	stdErr := bytes.Buffer{}
+	cmd.Stdout = &stdOut
+	cmd.Stderr = &stdErr
+	err := cmd.Run()
+
+	if err != nil {
+		t.Errorf("error running 'kustomize version': verify kustomize is installed: %v", err)
+		return
+	}
+
+	if stdErr.String() != "" {
+		t.Errorf("error running 'kustomize version': verify kustomize is installed: %s", stdErr.String())
+		return
+	}
+
+	// assume v4 (latest at time of writing)
+	kustomizeVersion := "v4"
+
+	if strings.Contains(stdOut.String(), "v3") {
+		t.Log("detected kustomize v3")
+		kustomizeVersion = "v3"
+	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			runKSOPSPluginIntegrationTest(t, tc.dir)
+			runKSOPSPluginIntegrationTest(t, tc.dir, kustomizeVersion)
 		})
 	}
 }
