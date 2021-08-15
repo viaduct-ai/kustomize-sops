@@ -14,7 +14,7 @@ PLUGIN_NAME="ksops"
 # ksops Plugin
 # ------------------------
 
-PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/"
+PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/$PLUGIN_NAME/"
 
 mkdir -p $PLUGIN_PATH
 
@@ -22,3 +22,18 @@ mkdir -p $PLUGIN_PATH
 echo "Copying plugin to the kustomize plugin path..."
 echo "cp $PLUGIN_NAME $PLUGIN_PATH"
 cp $PLUGIN_NAME $PLUGIN_PATH
+
+# ------------------------
+# Deprecated ksops-exec Plugin
+# Please migrate to ksops if you are using ksops-exec
+# ------------------------
+DEPRECATED_EXEC_PLUGIN_NAME="ksops-exec"
+
+DEPRECATED_PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/$DEPRECATED_EXEC_PLUGIN_NAME"
+
+mkdir -p $DEPRECATED_PLUGIN_PATH
+
+# Make the plugin available to kustomize 
+echo "Copying plugin to the kustomize plugin path..."
+echo "cp $PLUGIN_NAME $DEPRECATED_PLUGIN_PATH/$DEPRECATED_EXEC_PLUGIN_NAME"
+cp $PLUGIN_NAME $DEPRECATED_PLUGIN_PATH/$DEPRECATED_EXEC_PLUGIN_NAME
