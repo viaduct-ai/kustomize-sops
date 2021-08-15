@@ -25,9 +25,6 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 ## Requirements
 - [kustomize](https://github.com/kubernetes-sigs/kustomize/)
-- [SOPS](https://github.com/mozilla/sops)
-- gpg
-
 
 ## Installation Options
 
@@ -44,18 +41,15 @@ source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/mas
 ## Getting Started
 
 ### 0. Verify Requirements
-Before continuing, verify your installation of [SOPS](https://github.com/mozilla/sops), [kustomize](https://github.com/kubernetes-sigs/kustomize/)
-, and `gpg`. Below are a few non-comprehensive commands to quickly check your installations:
+Before continuing, verify your installation of [kustomize](https://github.com/kubernetes-sigs/kustomize/)
+and `gpg`. Below are a few non-comprehensive commands to quickly check your installations:
 
 ```bash
-# Verify SOPS is installed
-sops --version
+# Verify kustomize is installed
+kustomize version
 
 # Verify gpg is installed
 gpg --help
-
-# Verify kustomize is installed
-kustomize version
 ```
 
 ### 1. Setup kustomize Plugin Path
@@ -216,7 +210,6 @@ stringData:
   # Encrypted data here
 ```
 
-
 ## Development and Testing
 
 Before developing or testing `KSOPS`, ensure all external [requirements](#requirements) are properly installed.
@@ -241,6 +234,18 @@ Everything is handled for you by `make test`. Just run it from the repo's root d
 ```bash
 make test
 ```
+
+## Migration from KSOPS v2.x.x to v3.x.x
+
+### Required Changes
+
+* The opt-in `ksops-exec` kind  is deprecated. If you are using the `ksops-exec` kind, please migrate to `ksops` once you've upgrade to *v3.x.x*. 
+
+### Background
+
+In `KSOPS` *v3.x.x*, the kustomize plugin `ksops` was  migrated to an [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) from a [Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) because of simpler installation, dependency management, and package maintenance. 
+
+`KSOPS` was originally developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option, but in *v2.2.0*, `KSOPS` introduced an opt-in [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) under via the `ksops-exec` kind.  Now that `KSOPS` is only an [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins), the `ksops-exec` kind is deprecated.
 
 ## Argo CD Integration 🤖
 
@@ -270,7 +275,7 @@ data:
 
 ### KSOPS Repo Sever Patch
 
-The simplest way to integrate `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/) is with a [strategic merge patch](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-api-machinery/strategic-merge-patch.md) on the Argo CD repo server deployment. The patch below uses an init container to build `KSOPS` and [kustomize](https://github.com/kubernetes-sigs/kustomize/) and volume mount to inject the `KSOPS` plugin and, optionally, override the [kustomize](https://github.com/kubernetes-sigs/kustomize/) executable.
+The simplest way to integrate `KSOPS` with [Argo CD](https://github.com/argoproj/argo-cd/) is with a [strategic merge patch](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-api-machinery/strategic-merge-patch.md) on the Argo CD repo server deployment. The patch below uses an init container to build `KSOPS` and volume mount to inject the `KSOPS` plugin and, optionally, override the [kustomize](https://github.com/kubernetes-sigs/kustomize/) executable.
 
 ```yaml
 # argo-cd-repo-server-ksops-patch.yaml
