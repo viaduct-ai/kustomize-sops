@@ -85,7 +85,6 @@ dockers:
       - go.sum
       - Makefile
       - scripts/
-      - exec_plugin.go
       - ksops.go
       # include .git for version
       - .git/
@@ -123,7 +122,6 @@ dockers:
       - go.sum
       - Makefile
       - scripts/
-      - exec_plugin.go
       - ksops.go
       # include .git for version
       - .git/

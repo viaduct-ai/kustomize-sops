@@ -60,7 +60,7 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 
 	// run kustomize version to validate installation
 	// and get kustomize version
-	cmd := exec.Command("kustomize", "version")
+	cmd := exec.Command("kustomize", "version", "--short")
 	stdOut := bytes.Buffer{}
 	stdErr := bytes.Buffer{}
 	cmd.Stdout = &stdOut
@@ -80,7 +80,10 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 	// assume v4 (latest at time of writing)
 	kustomizeVersion := "v4"
 
-	if strings.Contains(stdOut.String(), "v3") {
+	// get std out and strip "ksops.v" string to simplify version matching
+	versionOutput := strings.ReplaceAll(stdOut.String(), "ksops.v", "")
+
+	if strings.Contains(versionOutput, "v3") {
 		t.Log("detected kustomize v3")
 		kustomizeVersion = "v3"
 	}
