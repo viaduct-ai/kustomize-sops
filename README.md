@@ -20,25 +20,36 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 ## Overview
 
-`KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
-
+`KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
 
 ## Requirements
 - [kustomize](https://github.com/kubernetes-sigs/kustomize/)
+- `XDG_CONFIG_HOME` environment variable is set in your shell. If it's not set, run the following
 
-## Installation Options
+```bash
+# Don't forget to define XDG_CONFIG_HOME in your .bashrc/.zshrc
+echo "export XDG_CONFIG_HOME=\$HOME/.config" >> $HOME/.zshrc
+source $HOME/.bashrc
+```
 
-### Exec Plugin
 
-[kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) offers a simpler installation and dependency management alternative to [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins).
+## Installation
 
-#### Download and Install the Latest Release
+### Install the Latest Release
 ```bash
 # Verify the $XDG_CONFIG_HOME environment variable exists then run
 source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh)
 ```
 
-## Getting Started
+### Install from Source
+```bash
+# Optionally, install kustomize via 
+# make kustomize
+# Verify the $XDG_CONFIG_HOME environment variable exists then run
+make install
+```
+
+## Getting Started (Tutorial)
 
 ### 0. Verify Requirements
 Before continuing, verify your installation of [kustomize](https://github.com/kubernetes-sigs/kustomize/)
@@ -50,26 +61,21 @@ kustomize version
 
 # Verify gpg is installed
 gpg --help
+
+# Verify XDG_CONFIG_HOME environment variable is set 
+echo $XDG_CONFIG_HOME
 ```
 
-### 1. Setup kustomize Plugin Path
-
-```bash
-# Don't forget to define XDG_CONFIG_HOME in your .bashrc/.zshrc
-echo "export XDG_CONFIG_HOME=\$HOME/.config" >> $HOME/.bashrc
-source $HOME/.bashrc
-```
-
-### 2. Download and install KSOPS
+### 1. Download and install KSOPS
 
 ```bash
 # Verify the $XDG_CONFIG_HOME environment variable exists then run
 source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh)
 ```
 
-### 3. Import Test PGP Keys
+### 2. Import Test PGP Keys
 
-To simplify local development and testing, we use PGP test keys. To import the keys, run the following command:
+To simplify local development and testing, we use PGP test keys. To import the keys, run the following command from the repository's root directory:
 
 ```bash
 make import-test-keys
@@ -79,7 +85,7 @@ If you are following this tutorial, be sure to run this before the following ste
 
 See [SOPS](https://github.com/mozilla/sops) for details.
 
-### 4. Configure SOPS via .sops.yaml
+### 3. Configure SOPS via .sops.yaml
 
 For this example and testing, `KSOPS` relies on the `SOPS` creation rules defined in `.sops.yaml`. To make encrypted secrets more readable, we suggest using the following encryption regex to only encrypt `data` and `stringData` values. This leaves non-sensitive fields, like the secret's name, unencrypted and human readable.
 
@@ -96,7 +102,7 @@ creation_rules:
     # gcp_kms: XXXXXX
 ```
 
-### 5. Create a Resource
+### 4. Create a Resource
 
 ```bash
 # Create a local Kubernetes Secret
@@ -112,7 +118,7 @@ data:
 EOF
 ```
 
-### 6. Encrypt the Resources
+### 5. Encrypt the Resources
 
 ```bash
 # Encrypt with SOPS CLI
@@ -120,7 +126,7 @@ EOF
 sops -e secret.yaml > secret.enc.yaml
 ```
 
-### 7. Define KSOPS kustomize Generator
+### 6. Define KSOPS kustomize Generator
 ```bash
 # Create a local Kubernetes Secret
 cat <<EOF > secret-generator.yaml
@@ -134,7 +140,7 @@ files:
 EOF
 ```
 
-### 8. Create the kustomization.yaml
+### 7. Create the kustomization.yaml
 [Read about kustomize plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/)
 
 ```bash
@@ -144,10 +150,12 @@ generators:
 EOF
 ```
 
-### 10. Build with kustomize 🔑
+### 8. Build with kustomize 🔑
 
 ```bash
 # Build with kustomize to verify
+# In kustomize v2 and v3 the command is
+# kustomize build --enable_alpha_plugins .
 kustomize build --enable-alpha-plugins .
 ```
 
