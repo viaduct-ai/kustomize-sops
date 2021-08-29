@@ -43,7 +43,7 @@ source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/mas
 
 ### Install from Source
 ```bash
-# Optionally, install kustomize via 
+# Optionally, install kustomize via
 # make kustomize
 # Verify the $XDG_CONFIG_HOME environment variable exists then run
 make install
@@ -62,7 +62,7 @@ kustomize version
 # Verify gpg is installed
 gpg --help
 
-# Verify XDG_CONFIG_HOME environment variable is set 
+# Verify XDG_CONFIG_HOME environment variable is set
 echo $XDG_CONFIG_HOME
 ```
 
@@ -247,11 +247,11 @@ make test
 
 ### Required Changes
 
-* The opt-in `ksops-exec` kind  is deprecated. If you are using the `ksops-exec` kind, please migrate to `ksops` once you've upgrade to *v3.x.x*. 
+* The opt-in `ksops-exec` kind  is deprecated. If you are using the `ksops-exec` kind, please migrate to `ksops` once you've upgrade to *v3.x.x*.
 
 ### Background
 
-In `KSOPS` *v3.x.x*, the kustomize plugin `ksops` was  migrated to an [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) from a [Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) because of simpler installation, dependency management, and package maintenance. 
+In `KSOPS` *v3.x.x*, the kustomize plugin `ksops` was  migrated to an [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) from a [Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) because of simpler installation, dependency management, and package maintenance.
 
 `KSOPS` was originally developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option, but in *v2.2.0*, `KSOPS` introduced an opt-in [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) under via the `ksops-exec` kind.  Now that `KSOPS` is only an [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins), the `ksops-exec` kind is deprecated.
 
