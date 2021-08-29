@@ -60,7 +60,7 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 
 	// run kustomize version to validate installation
 	// and get kustomize version
-	cmd := exec.Command("kustomize", "version")
+	cmd := exec.Command("kustomize", "version", "--short")
 	stdOut := bytes.Buffer{}
 	stdErr := bytes.Buffer{}
 	cmd.Stdout = &stdOut
