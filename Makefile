@@ -1,5 +1,4 @@
-GO_PLUGIN_NAME="ksops.so"
-EXEC_PLUGIN_NAME="ksops"
+PLUGIN_NAME="ksops"
 
 # Default to installing KSOPS
 default: install
@@ -7,32 +6,17 @@ default: install
 .PHONY: install
 install: go-install clean build install-plugin
 
-.PHONY: install-exec-only
-install-exec-only: clean build install-exec-plugin
-
 .PHONY: install-plugin
 install-plugin:
 	./scripts/install-ksops.sh
 
-.PHONY: install-exec-plugin
-install-exec-plugin:
-	./scripts/install-ksops.sh --mode exec
-
 .PHONY: build
-build: build-exec build-plugin
-
-.PHONY: build-exec
-build-exec:
-	go build -o $(EXEC_PLUGIN_NAME)
-
-.PHONY: build-plugin
-build-plugin:
-	go build -buildmode plugin -o $(GO_PLUGIN_NAME)
+build:
+	go build -o $(PLUGIN_NAME)
 
 .PHONY: clean
 clean:
-	rm $(GO_PLUGIN_NAME) || true
-	rm $(EXEC_PLUGIN_NAME) || true
+	rm $(PLUGIN_NAME) || true
 	rm -rf $(XDG_CONFIG_HOME)/kustomize/plugin/viaduct.ai/v1/ || true
 	rm -rf $(HOME)/sigs.k8s.io/kustomize/plugin/viaduct.ai/v1/ || true
 
