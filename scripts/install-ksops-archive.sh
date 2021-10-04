@@ -8,6 +8,14 @@ if [[ -z "$XDG_CONFIG_HOME" ]]; then
   exit 1
 fi
 
+req_cmds_lst=( "wget" )
+# Require CLI tools to be available
+for i in "${req_cmds_lst[@]}" ;do
+  if ! which "${i}" &> /dev/null ;then
+    echo "Required utility not found in PATH: '${i}'"
+    exit 1
+  fi
+done
 
 PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/"
 
@@ -31,7 +39,10 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
   windowsnt*)
     OS="Windows"
     ;;
-  *)
+  mingw64_nt*)
+    OS="Windows"
+    ;;
+  ,*)
     echo "Unknown OS type: $(uname)"
     echo "Please consider contributing to this script to support your OS."
     exit 1
