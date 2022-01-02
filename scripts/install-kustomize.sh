@@ -6,7 +6,7 @@ KUSTOMIZE="kustomize"
 function install_kustomize() {
   echo "Installing $KUSTOMIZE..."
   KUSTOMIZE_MAJOR_VERSION='v4'
-  KUSTOMIZE_VERSION="${KUSTOMIZE_MAJOR_VERSION}.3.0"
+  KUSTOMIZE_VERSION="${KUSTOMIZE_MAJOR_VERSION}.4.1"
   BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
   KSOPS_VERSION=$(git rev-parse HEAD)
   KSOPS_TAG=$(git describe --exact-match --tags HEAD 2>/dev/null || true )
@@ -27,7 +27,7 @@ if [ -x "$(command -v $KUSTOMIZE)" ]; then
 
   echo "WARNING: Found an existing installation of $KUSTOMIZE at $KUSTOMIZE_EXEC"
   read -p "Please confirm you want to reinstall $KUSTOMIZE (y/n): " -n 1 -r
-  echo 
+  echo
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
     # Remove existing kustomize executable
