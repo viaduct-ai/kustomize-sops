@@ -20,7 +20,7 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 ## Overview
 
-`KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
+`KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins) for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
 
 ## Requirements
 - [kustomize](https://github.com/kubernetes-sigs/kustomize/)
@@ -173,7 +173,7 @@ https://github.com/viaduct-ai/kustomize-sops/issues
 
 ## Generator Options
 
-`KSOPS` supports [kustomize exec plugins](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#generator-options) annotation based generator options. At the time of writing, the supported annotations are:
+`KSOPS` supports [kustomize exec plugins](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins/#generator-options) annotation based generator options. At the time of writing, the supported annotations are:
 
 - `kustomize.config.k8s.io/needs-hash`
 - `kustomize.config.k8s.io/behavior`
@@ -251,9 +251,9 @@ make test
 
 ### Background
 
-In `KSOPS` *v3.x.x*, the kustomize plugin `ksops` was  migrated to an [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) from a [Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) because of simpler installation, dependency management, and package maintenance.
+In `KSOPS` *v3.x.x*, the kustomize plugin `ksops` was  migrated to an [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins) from a [Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) because of simpler installation, dependency management, and package maintenance.
 
-`KSOPS` was originally developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option, but in *v2.2.0*, `KSOPS` introduced an opt-in [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins) under via the `ksops-exec` kind.  Now that `KSOPS` is only an [exec plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#exec-plugins), the `ksops-exec` kind is deprecated.
+`KSOPS` was originally developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until *v2.2.0* this was the only installation option, but in *v2.2.0*, `KSOPS` introduced an opt-in [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins) under via the `ksops-exec` kind.  Now that `KSOPS` is only an [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins), the `ksops-exec` kind is deprecated.
 
 ## Argo CD Integration 🤖
 
