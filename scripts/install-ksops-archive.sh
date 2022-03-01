@@ -16,7 +16,18 @@ echo "Verify ksops plugin directory exists and is empty"
 rm -rf $PLUGIN_PATH || true
 mkdir -p $PLUGIN_PATH
 
-ARCH=$(uname -m)
+get_machine_arch () {
+    machine_arch=""
+    case $(uname -m) in
+        i386)   machine_arch="i386" ;;
+        i686)    machine_arch="i386" ;;
+        x86_64)  machine_arch="x86_64" ;;
+        aarch64) machine_arch="arm64" ;;
+    esac
+    echo $machine_arch
+}
+
+ARCH=$(get_machine_arch)
 OS=""
 case $(uname | tr '[:upper:]' '[:lower:]') in
   linux*)
@@ -40,5 +51,12 @@ esac
 
 
 echo "Downloading latest release to ksops plugin path"
-wget -c https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz -O - | tar -xz -C $PLUGIN_PATH
+if [ -x "$(command -v wget)" ]; then
+    wget -c https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz -O - | tar -xz -C $PLUGIN_PATH
+elif [ -x "$(command -v curl)" ]; then
+    curl -s -L https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz | tar -xz -C $PLUGIN_PATH
+else
+    echo "This script requires either wget or curl."
+    exit 1
+fi
 echo "Successfully installed ksops"
