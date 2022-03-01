@@ -34,9 +34,16 @@ source $HOME/.zshrc
 
 ### Install the Latest Release
 
+Using curl
 ```bash
 # Verify the $XDG_CONFIG_HOME environment variable exists then run
-source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh)
+curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
+```
+
+Or using wget
+```bash
+# Verify the $XDG_CONFIG_HOME environment variable exists then run
+wget -qcO - https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
 ```
 
 ### Install from Source
