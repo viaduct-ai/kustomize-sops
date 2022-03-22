@@ -19,10 +19,11 @@ mkdir -p $PLUGIN_PATH
 get_machine_arch () {
     machine_arch=""
     case $(uname -m) in
-        i386)   machine_arch="i386" ;;
+        i386)    machine_arch="i386" ;;
         i686)    machine_arch="i386" ;;
         x86_64)  machine_arch="x86_64" ;;
         aarch64) machine_arch="arm64" ;;
+        arm64)   machine_arch="arm64" ;;
     esac
     echo $machine_arch
 }
