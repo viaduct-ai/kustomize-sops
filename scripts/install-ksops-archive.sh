@@ -43,6 +43,9 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
   windowsnt*)
     OS="Windows"
     ;;
+  mingw*)
+    OS="Windows"
+    ;;
   *)
     echo "Unknown OS type: $(uname)"
     echo "Please consider contributing to this script to support your OS."
