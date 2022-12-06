@@ -191,6 +191,38 @@ https://github.com/viaduct-ai/kustomize-sops/issues
 
 For information, read the [kustomize generator options documentation](https://github.com/kubernetes-sigs/kustomize/blob/master/examples/generatorOptions.md).
 
+### Generate secret directly from encrypted files
+
+`KSOPS` can generate a Kubernetes Secret directly from encrypted files or dotenv files.
+
+```
+# Create a Kubernetes Secret from encrypted file
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: secret-name
+  labels:
+    app: foo
+  annotations:
+    kustomize.config.k8s.io/needs-hash: "false"
+fromFiles:
+  - ./secret.enc.conf
+EOF
+```
+```
+# Create a Kubernetes Secret from encrypted dotenv file
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: secret-name
+fromEnvFiles:
+  - ./secret.enc.env
+EOF
+```
+
+
 ### Encrypted Secret Overlays w/ Generator Options
 
 Sometimes there is a default secret as part of a project's base manifests, like the [base Argo CD secret](https://github.com/argoproj/argo-cd/blob/master/manifests/base/config/argocd-secret.yaml), which you want to `replace` in your overlay. Other times, you have parts of base secret that are common across different overlays but you want to partially update, or `merge`, changes specific to each overlay as well. You can achieve both of these goals by simply adding the following annotations to your encrypted secrets:
