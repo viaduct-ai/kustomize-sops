@@ -98,6 +98,13 @@ func main() {
 
 	stringData := make(map[string]string)
 
+	for _, file := range manifest.FromFiles {
+		data := decryptFile(file, content)
+
+		key := filepath.Base(file)
+		stringData[key] = string(data)
+	}
+
 	for _, file := range manifest.FromEnvFiles {
 		data := decryptFile(file, content)
 
@@ -106,14 +113,9 @@ func main() {
 			fmt.Fprintf(os.Stderr, "error unmarshalling .env file %s", err.Error())
 			os.Exit(1)
 		}
-		stringData = env
-	}
-
-	for _, file := range manifest.FromFiles {
-		data := decryptFile(file, content)
-
-		key := filepath.Base(file)
-		stringData[key] = string(data)
+		for k, v := range env {
+			stringData[k] = v
+		}
 	}
 
 	if manifest.FromFiles != nil || manifest.FromEnvFiles != nil {
