@@ -29,17 +29,23 @@ type metadata struct {
 }
 
 type secret struct {
-	ApiVersion string            `json:"apiVersion" yaml:"apiVersion" default:"v1"`
-	Kind       string            `json:"kind" yaml:"kind" default:"Secret"`
+	ApiVersion string            `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string            `json:"kind" yaml:"kind"`
 	Metadata   metadata          `json:"metadata" yaml:"metadata"`
+	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
 	StringData map[string]string `json:"stringData" yaml:"stringData"`
 }
 
+type secretFrom struct {
+	Files    []string `json:"files,omitempty" yaml:"files,omitempty"`
+	Envs     []string `json:"envs,omitempty" yaml:"envs,omitempty"`
+	Metadata metadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Type     string   `json:"type,omitempty" yaml:"type,omitempty"`
+}
+
 type ksops struct {
-	Files        []string `json:"files,omitempty" yaml:"files,omitempty"`
-	FromFiles    []string `json:"fromFiles,omitempty" yaml:"fromFiles,omitempty"`
-	FromEnvFiles []string `json:"fromEnvFiles,omitempty" yaml:"fromEnvFiles,omitempty"`
-	Metadata     metadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Files      []string     `json:"files,omitempty" yaml:"files,omitempty"`
+	SecretFrom []secretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
 }
 
 func decryptFile(file string, content []byte) []byte {
@@ -83,8 +89,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	if manifest.Files == nil && manifest.FromFiles == nil && manifest.FromEnvFiles == nil {
-		fmt.Fprintf(os.Stderr, "missing the required 'files', 'fromFiles' or 'fromEnvFiles' key in the ksops manifests: %s", content)
+	if manifest.Files == nil && manifest.SecretFrom == nil {
+		fmt.Fprintf(os.Stderr, "missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", content)
 		os.Exit(1)
 	}
 
@@ -97,33 +103,34 @@ func main() {
 		output.WriteString("\n---\n")
 	}
 
-	stringData := make(map[string]string)
+	for _, secretFrom := range manifest.SecretFrom {
+		stringData := make(map[string]string)
 
-	for _, file := range manifest.FromFiles {
-		data := decryptFile(file, content)
+		for _, file := range secretFrom.Files {
+			data := decryptFile(file, content)
 
-		key := filepath.Base(file)
-		stringData[key] = string(data)
-	}
-
-	for _, file := range manifest.FromEnvFiles {
-		data := decryptFile(file, content)
-
-		env, err := godotenv.Unmarshal(string(data))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error unmarshalling .env file %s", err.Error())
-			os.Exit(1)
+			key := filepath.Base(file)
+			stringData[key] = string(data)
 		}
-		for k, v := range env {
-			stringData[k] = v
-		}
-	}
 
-	if manifest.FromFiles != nil || manifest.FromEnvFiles != nil {
+		for _, file := range secretFrom.Envs {
+			data := decryptFile(file, content)
+
+			env, err := godotenv.Unmarshal(string(data))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error unmarshalling .env file %s", err.Error())
+				os.Exit(1)
+			}
+			for k, v := range env {
+				stringData[k] = v
+			}
+		}
+
 		s := secret{
 			ApiVersion: "v1",
 			Kind:       "Secret",
-			Metadata:   manifest.Metadata,
+			Metadata:   secretFrom.Metadata,
+			Type:       secretFrom.Type,
 			StringData: stringData,
 		}
 		d, err := yaml.Marshal(&s)
