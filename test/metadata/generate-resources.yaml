@@ -5,6 +5,7 @@ metadata:
 secretFrom:
 - metadata:
     name: mysecret
+    namespace: test
     labels:
       foo: bar
     annotations:
