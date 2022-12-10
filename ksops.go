@@ -21,34 +21,34 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-type metadata struct {
+type Metadata struct {
 	Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
 	Namespace   string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
-type secret struct {
+type KubernetesSecret struct {
 	ApiVersion string            `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string            `json:"kind" yaml:"kind"`
-	Metadata   metadata          `json:"metadata" yaml:"metadata"`
+	Metadata   Metadata          `json:"metadata" yaml:"metadata"`
 	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
 	StringData map[string]string `json:"stringData" yaml:"stringData"`
 }
 
-type secretFrom struct {
+type SecretFrom struct {
 	Files    []string `json:"files,omitempty" yaml:"files,omitempty"`
 	Envs     []string `json:"envs,omitempty" yaml:"envs,omitempty"`
-	Metadata metadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Metadata Metadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 	Type     string   `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
 type ksops struct {
 	Files      []string     `json:"files,omitempty" yaml:"files,omitempty"`
-	SecretFrom []secretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
+	SecretFrom []SecretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
 }
 
-func decryptFile(file string, content []byte) []byte {
+func DecryptFile(file string, content []byte) []byte {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading %q: %q\n", file, err.Error())
@@ -97,7 +97,7 @@ func main() {
 	var output bytes.Buffer
 
 	for _, file := range manifest.Files {
-		data := decryptFile(file, content)
+		data := DecryptFile(file, content)
 
 		output.Write(data)
 		output.WriteString("\n---\n")
@@ -107,14 +107,14 @@ func main() {
 		stringData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
-			data := decryptFile(file, content)
+			data := DecryptFile(file, content)
 
 			key := filepath.Base(file)
 			stringData[key] = string(data)
 		}
 
 		for _, file := range secretFrom.Envs {
-			data := decryptFile(file, content)
+			data := DecryptFile(file, content)
 
 			env, err := godotenv.Unmarshal(string(data))
 			if err != nil {
@@ -126,7 +126,7 @@ func main() {
 			}
 		}
 
-		s := secret{
+		s := KubernetesSecret{
 			ApiVersion: "v1",
 			Kind:       "Secret",
 			Metadata:   secretFrom.Metadata,
