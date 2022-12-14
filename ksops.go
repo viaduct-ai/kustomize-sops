@@ -36,16 +36,14 @@ type KubernetesSecret struct {
 	StringData map[string]string `json:"stringData" yaml:"stringData"`
 }
 
-type SecretFrom struct {
-	Files    []string `json:"files,omitempty" yaml:"files,omitempty"`
-	Envs     []string `json:"envs,omitempty" yaml:"envs,omitempty"`
-	Metadata Metadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
-	Type     string   `json:"type,omitempty" yaml:"type,omitempty"`
-}
-
 type ksops struct {
-	Files      []string     `json:"files,omitempty" yaml:"files,omitempty"`
-	SecretFrom []SecretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
+	Files      []string `json:"files,omitempty" yaml:"files,omitempty"`
+	SecretFrom []struct {
+		Files    []string `json:"files,omitempty" yaml:"files,omitempty"`
+		Envs     []string `json:"envs,omitempty" yaml:"envs,omitempty"`
+		Metadata Metadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+		Type     string   `json:"type,omitempty" yaml:"type,omitempty"`
+	} `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
 }
 
 func DecryptFile(file string, content []byte) []byte {
