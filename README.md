@@ -100,7 +100,7 @@ For this example and testing, `KSOPS` relies on the `SOPS` creation rules define
 
 ```yaml
 creation_rules:
-  - encrypted_regex: "^(data|stringData)$"
+  - unencrypted_regex: "^(apiVersion|metadata|kind|type)$"
     # Specify kms/pgp/etc encryption key
     # This tutorial uses a local PGP key for encryption.
     # DO NOT USE IN PRODUCTION ENV
@@ -182,20 +182,11 @@ Someone might have already encountered your issue.
 
 https://github.com/viaduct-ai/kustomize-sops/issues
 
-## Generator Options
-
-`KSOPS` supports [kustomize exec plugins](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins/#generator-options) annotation based generator options. At the time of writing, the supported annotations are:
-
-- `kustomize.config.k8s.io/needs-hash`
-- `kustomize.config.k8s.io/behavior`
-
-For information, read the [kustomize generator options documentation](https://github.com/kubernetes-sigs/kustomize/blob/master/examples/generatorOptions.md).
-
-### Generate secret directly from encrypted files
+## Generate secret directly from encrypted files
 
 `KSOPS` can also generate a Kubernetes Secret directly from encrypted files or dotenv files.
 
-```
+```bash
 # Create a Kubernetes Secret from encrypted file
 cat <<EOF > secret-generator.yaml
 apiVersion: viaduct.ai/v1
@@ -214,7 +205,7 @@ secretFrom:
   - ./secret.enc.conf
 EOF
 ```
-```
+```bash
 # Create a Kubernetes Secret from encrypted dotenv file
 cat <<EOF > secret-generator.yaml
 apiVersion: viaduct.ai/v1
@@ -229,6 +220,14 @@ secretFrom:
 EOF
 ```
 
+## Generator Options
+
+`KSOPS` supports [kustomize exec plugins](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins/#generator-options) annotation based generator options. At the time of writing, the supported annotations are:
+
+- `kustomize.config.k8s.io/needs-hash`
+- `kustomize.config.k8s.io/behavior`
+
+For information, read the [kustomize generator options documentation](https://github.com/kubernetes-sigs/kustomize/blob/master/examples/generatorOptions.md).
 
 ### Encrypted Secret Overlays w/ Generator Options
 

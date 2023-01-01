@@ -18,39 +18,35 @@ import (
 	"github.com/joho/godotenv"
 	"go.mozilla.org/sops/v3/cmd/sops/formats"
 	"go.mozilla.org/sops/v3/decrypt"
+	"sigs.k8s.io/kustomize/api/types"
 	"sigs.k8s.io/yaml"
 )
-
-type Metadata struct {
-	Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
-	Namespace   string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
-	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
-}
 
 type KubernetesSecret struct {
 	ApiVersion string            `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string            `json:"kind" yaml:"kind"`
-	Metadata   Metadata          `json:"metadata" yaml:"metadata"`
+	Metadata   types.ObjectMeta  `json:"metadata" yaml:"metadata"`
 	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
 	StringData map[string]string `json:"stringData" yaml:"stringData"`
 }
 
-type ksops struct {
-	Files      []string `json:"files,omitempty" yaml:"files,omitempty"`
-	SecretFrom []struct {
-		Files    []string `json:"files,omitempty" yaml:"files,omitempty"`
-		Envs     []string `json:"envs,omitempty" yaml:"envs,omitempty"`
-		Metadata Metadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
-		Type     string   `json:"type,omitempty" yaml:"type,omitempty"`
-	} `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
+type SecretFrom struct {
+	Files    []string         `json:"files,omitempty" yaml:"files,omitempty"`
+	Envs     []string         `json:"envs,omitempty" yaml:"envs,omitempty"`
+	Metadata types.ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Type     string           `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
-func DecryptFile(file string, content []byte) []byte {
+type ksops struct {
+	Files      []string     `json:"files,omitempty" yaml:"files,omitempty"`
+	SecretFrom []SecretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
+}
+
+func DecryptFile(file string, generatorContent []byte) []byte {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading %q: %q\n", file, err.Error())
-		fmt.Fprintf(os.Stderr, "manifest content: %s", content)
+		fmt.Fprintf(os.Stderr, "manifest content: %s", generatorContent)
 		os.Exit(1)
 	}
 
@@ -73,29 +69,29 @@ func main() {
 
 	// ignore the first file name argument
 	// load the second argument, the file path
-	content, err := ioutil.ReadFile(os.Args[1])
+	generatorContent, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "unable to read in manifest", os.Args[1])
 		os.Exit(1)
 	}
 
 	var manifest ksops
-	err = yaml.Unmarshal(content, &manifest)
+	err = yaml.Unmarshal(generatorContent, &manifest)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error unmarshalling manifest content: %q \n%s\n", err, content)
+		fmt.Fprintf(os.Stderr, "error unmarshalling manifest content: %q \n%s\n", err, generatorContent)
 		os.Exit(1)
 	}
 
 	if manifest.Files == nil && manifest.SecretFrom == nil {
-		fmt.Fprintf(os.Stderr, "missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", content)
+		fmt.Fprintf(os.Stderr, "missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", generatorContent)
 		os.Exit(1)
 	}
 
 	var output bytes.Buffer
 
 	for _, file := range manifest.Files {
-		data := DecryptFile(file, content)
+		data := DecryptFile(file, generatorContent)
 
 		output.Write(data)
 		output.WriteString("\n---\n")
@@ -105,14 +101,14 @@ func main() {
 		stringData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
-			data := DecryptFile(file, content)
+			data := DecryptFile(file, generatorContent)
 
 			key := filepath.Base(file)
 			stringData[key] = string(data)
 		}
 
 		for _, file := range secretFrom.Envs {
-			data := DecryptFile(file, content)
+			data := DecryptFile(file, generatorContent)
 
 			env, err := godotenv.Unmarshal(string(data))
 			if err != nil {
@@ -133,7 +129,8 @@ func main() {
 		}
 		d, err := yaml.Marshal(&s)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "trouble encoding metadata %s", err.Error())
+			fmt.Fprintf(os.Stderr, "error marshalling manifest %s", err.Error())
+			os.Exit(1)
 		}
 		output.WriteString(string(d))
 		output.WriteString("---\n")
