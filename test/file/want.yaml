@@ -3,7 +3,7 @@ kind: Secret
 metadata:
   name: mysecret
 stringData:
-  secret.enc.yaml: |
+  secret.yaml: |
     username: admin
     password: 1f2d1e2e67df
 type: Opaque

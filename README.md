@@ -203,6 +203,7 @@ secretFrom:
   type: Opaque
   files:
   - ./secret.enc.conf
+  - secret.yaml=./secret.enc.yaml
 EOF
 ```
 ```bash

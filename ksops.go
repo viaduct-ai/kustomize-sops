@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"go.mozilla.org/sops/v3/cmd/sops/formats"
@@ -22,15 +23,15 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-type KubernetesSecret struct {
-	ApiVersion string            `json:"apiVersion" yaml:"apiVersion"`
+type kubernetesSecret struct {
+	APIVersion string            `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string            `json:"kind" yaml:"kind"`
 	Metadata   types.ObjectMeta  `json:"metadata" yaml:"metadata"`
 	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
 	StringData map[string]string `json:"stringData" yaml:"stringData"`
 }
 
-type SecretFrom struct {
+type secretFrom struct {
 	Files    []string         `json:"files,omitempty" yaml:"files,omitempty"`
 	Envs     []string         `json:"envs,omitempty" yaml:"envs,omitempty"`
 	Metadata types.ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
@@ -39,10 +40,10 @@ type SecretFrom struct {
 
 type ksops struct {
 	Files      []string     `json:"files,omitempty" yaml:"files,omitempty"`
-	SecretFrom []SecretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
+	SecretFrom []secretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
 }
 
-func DecryptFile(file string, generatorContent []byte) []byte {
+func decryptFile(file string, generatorContent []byte) []byte {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading %q: %q\n", file, err.Error())
@@ -57,6 +58,17 @@ func DecryptFile(file string, generatorContent []byte) []byte {
 		os.Exit(1)
 	}
 	return data
+}
+
+func getKeyPath(file string) (string, string) {
+	slices := strings.Split(file, "=")
+	if len(slices) == 1 {
+		return filepath.Base(file), file
+	} else if len(slices) > 2 {
+		fmt.Fprintf(os.Stderr, "invalid format in file generator %s", file)
+		os.Exit(1)
+	}
+	return slices[0], slices[1]
 }
 
 // main executes KOSPS as an exec plugin
@@ -91,7 +103,7 @@ func main() {
 	var output bytes.Buffer
 
 	for _, file := range manifest.Files {
-		data := DecryptFile(file, generatorContent)
+		data := decryptFile(file, generatorContent)
 
 		output.Write(data)
 		output.WriteString("\n---\n")
@@ -101,14 +113,14 @@ func main() {
 		stringData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
-			data := DecryptFile(file, generatorContent)
+			key, path := getKeyPath(file)
+			data := decryptFile(path, generatorContent)
 
-			key := filepath.Base(file)
 			stringData[key] = string(data)
 		}
 
 		for _, file := range secretFrom.Envs {
-			data := DecryptFile(file, generatorContent)
+			data := decryptFile(file, generatorContent)
 
 			env, err := godotenv.Unmarshal(string(data))
 			if err != nil {
@@ -120,8 +132,8 @@ func main() {
 			}
 		}
 
-		s := KubernetesSecret{
-			ApiVersion: "v1",
+		s := kubernetesSecret{
+			APIVersion: "v1",
 			Kind:       "Secret",
 			Metadata:   secretFrom.Metadata,
 			Type:       secretFrom.Type,
