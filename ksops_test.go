@@ -65,6 +65,10 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			dir:  "test/envs",
 		},
 		{
+			name: "Override Key",
+			dir:  "test/override",
+		},
+		{
 			name: "Secret Metadata",
 			dir:  "test/metadata",
 		},
