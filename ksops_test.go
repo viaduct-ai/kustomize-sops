@@ -56,6 +56,22 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			name: "Replace Behavior",
 			dir:  "test/behaviors",
 		},
+		{
+			name: "From File",
+			dir:  "test/file",
+		},
+		{
+			name: "From Envs",
+			dir:  "test/envs",
+		},
+		{
+			name: "Override Key",
+			dir:  "test/override",
+		},
+		{
+			name: "Secret Metadata",
+			dir:  "test/metadata",
+		},
 	}
 
 	// run kustomize version to validate installation

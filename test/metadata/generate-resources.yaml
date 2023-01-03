@@ -1,0 +1,14 @@
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: ksops-secret-from-generator
+secretFrom:
+- metadata:
+    name: mysecret
+    namespace: test
+    labels:
+      foo: bar
+    annotations:
+      abc: xyz
+  envs:
+  - ./secret.enc.env

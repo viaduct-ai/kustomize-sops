@@ -100,7 +100,7 @@ For this example and testing, `KSOPS` relies on the `SOPS` creation rules define
 
 ```yaml
 creation_rules:
-  - encrypted_regex: "^(data|stringData)$"
+  - unencrypted_regex: "^(apiVersion|metadata|kind|type)$"
     # Specify kms/pgp/etc encryption key
     # This tutorial uses a local PGP key for encryption.
     # DO NOT USE IN PRODUCTION ENV
@@ -181,6 +181,45 @@ kustomize build --enable-alpha-plugins .
 Someone might have already encountered your issue.
 
 https://github.com/viaduct-ai/kustomize-sops/issues
+
+## Generate secret directly from encrypted files
+
+`KSOPS` can also generate a Kubernetes Secret directly from encrypted files or dotenv files.
+
+```bash
+# Create a Kubernetes Secret from encrypted file
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: example-secret-generator
+secretFrom:
+- metadata:
+    name: secret-name
+    labels:
+      app: foo
+    annotations:
+      kustomize.config.k8s.io/needs-hash: "false"
+  type: Opaque
+  files:
+  - ./secret.enc.conf
+  - secret.yaml=./secret.enc.yaml
+EOF
+```
+```bash
+# Create a Kubernetes Secret from encrypted dotenv file
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: example-secret-generator
+secretFrom:
+- metadata:
+    name: secret-name
+  envs:
+  - ./secret.enc.env
+EOF
+```
 
 ## Generator Options
 
