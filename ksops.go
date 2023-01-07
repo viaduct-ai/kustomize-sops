@@ -43,21 +43,18 @@ type ksops struct {
 	SecretFrom []secretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
 }
 
-func decryptFile(file string, generatorContent []byte) []byte {
+func decryptFile(file string) ([]byte, error) {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error reading %q: %q\n", file, err.Error())
-		fmt.Fprintf(os.Stderr, "manifest content: %s", generatorContent)
-		os.Exit(1)
+		return nil, fmt.Errorf("error reading %q: %w", file, err)
 	}
 
 	format := formats.FormatForPath(file)
 	data, err := decrypt.DataWithFormat(b, format)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "trouble decrypting file %s", err.Error())
-		os.Exit(1)
+		return nil, fmt.Errorf("trouble decrypting file: %w", err)
 	}
-	return data
+	return data, nil
 }
 
 func getKeyPath(file string) (string, string) {
@@ -129,7 +126,11 @@ func generate(raw []byte) string {
 	var output bytes.Buffer
 
 	for _, file := range manifest.Files {
-		data := decryptFile(file, raw)
+		data, err := decryptFile(file)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error decrypting file: %v", err)
+			os.Exit(1)
+		}
 
 		output.Write(data)
 		output.WriteString("\n---\n")
@@ -140,13 +141,21 @@ func generate(raw []byte) string {
 
 		for _, file := range secretFrom.Files {
 			key, path := getKeyPath(file)
-			data := decryptFile(path, raw)
+			data, err := decryptFile(file)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error decrypting file: %v", err)
+				os.Exit(1)
+			}
 
 			stringData[key] = string(data)
 		}
 
 		for _, file := range secretFrom.Envs {
-			data := decryptFile(file, raw)
+			data, err := decryptFile(file)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error decrypting file: %v", err)
+				os.Exit(1)
+			}
 
 			env, err := godotenv.Unmarshal(string(data))
 			if err != nil {
