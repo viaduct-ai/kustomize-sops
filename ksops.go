@@ -58,7 +58,7 @@ func decryptFile(file string) ([]byte, error) {
 	return data, nil
 }
 
-func getKeyPath(file string) (string, string) {
+func fileKeyPath(file string) (string, string) {
 	slices := strings.Split(file, "=")
 	if len(slices) == 1 {
 		return filepath.Base(file), file
@@ -169,10 +169,10 @@ func generate(raw []byte) (string, error) {
 		stringData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
-			key, _ := getKeyPath(file)
-			data, err := decryptFile(file)
+			key, path := fileKeyPath(file)
+			data, err := decryptFile(path)
 			if err != nil {
-				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", file, err)
+				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", path, err)
 			}
 
 			stringData[key] = string(data)
