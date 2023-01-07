@@ -103,6 +103,7 @@ func main() {
 	fmt.Print(result)
 }
 
+// https://pkg.go.dev/github.com/GoogleContainerTools/kpt-functions-sdk/go/fn#hdr-KRM_Function
 func krm(rl *fn.ResourceList) (bool, error) {
 	var items fn.KubeObjects
 	for _, manifest := range rl.Items {

@@ -72,6 +72,10 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			name: "Secret Metadata",
 			dir:  "test/metadata",
 		},
+		{
+			name: "KRM",
+			dir:  "test/krm",
+		},
 	}
 
 	// run kustomize version to validate installation
