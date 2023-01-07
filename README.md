@@ -1,4 +1,4 @@
-# KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resource
+# KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resources
 
 ![Tests and Build](https://github.com/viaduct-ai/kustomize-sops/workflows/Run%20Tests%20and%20Build/badge.svg?branch=master)
 
