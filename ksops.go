@@ -71,13 +71,33 @@ func getKeyPath(file string) (string, string) {
 	return slices[0], slices[1]
 }
 
+func help() {
+	fmt.Fprintln(os.Stderr, "received too few args:", os.Args)
+	fmt.Fprintln(os.Stderr, "always invoke this via kustomize plugins")
+	os.Exit(1)
+}
+
 // main executes KOSPS as an exec plugin
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Fprintln(os.Stderr, "received too few args:", os.Args)
-		fmt.Fprintln(os.Stderr, "always invoke this via kustomize plugins")
-		os.Exit(1)
+	nargs := len(os.Args)
+	if !(nargs == 1 || nargs == 2) {
+		help()
 	}
+
+	// If one argument, assume KRM style
+	if nargs == 1 {
+		// https://stackoverflow.com/questions/22744443/check-if-there-is-something-to-read-on-stdin-in-golang
+		stat, _ := os.Stdin.Stat()
+
+		// Check the StdIn content.
+		if !(stat.Mode()&os.ModeCharDevice == 0) {
+			help()
+		}
+		panic("KRM plugin not implemented")
+		return
+	}
+
+	// If two argument, assume legacy style
 
 	// ignore the first file name argument
 	// load the second argument, the file path
