@@ -121,7 +121,7 @@ func generate(raw []byte) (string, error) {
 	err := yaml.Unmarshal(raw, &manifest)
 
 	if err != nil {
-		return "", fmt.Errorf("error unmarshalling manifest content: %q \n%s\n", err, raw)
+		return "", fmt.Errorf("error unmarshalling manifest content: %q \n%s", err, raw)
 	}
 
 	if manifest.Files == nil && manifest.SecretFrom == nil {
