@@ -44,31 +44,6 @@ type ksops struct {
 	SecretFrom []secretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
 }
 
-func decryptFile(file string) ([]byte, error) {
-	b, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil, fmt.Errorf("error reading %q: %w", file, err)
-	}
-
-	format := formats.FormatForPath(file)
-	data, err := decrypt.DataWithFormat(b, format)
-	if err != nil {
-		return nil, fmt.Errorf("trouble decrypting file: %w", err)
-	}
-	return data, nil
-}
-
-func fileKeyPath(file string) (string, string) {
-	slices := strings.Split(file, "=")
-	if len(slices) == 1 {
-		return filepath.Base(file), file
-	} else if len(slices) > 2 {
-		fmt.Fprintf(os.Stderr, "invalid format in file generator %s", file)
-		os.Exit(1)
-	}
-	return slices[0], slices[1]
-}
-
 func help() {
 	fmt.Fprintln(os.Stderr, "received too few args:", os.Args)
 	fmt.Fprintln(os.Stderr, "always invoke this via kustomize plugins")
@@ -209,4 +184,29 @@ func generate(raw []byte) (string, error) {
 	}
 
 	return output.String(), nil
+}
+
+func decryptFile(file string) ([]byte, error) {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("error reading %q: %w", file, err)
+	}
+
+	format := formats.FormatForPath(file)
+	data, err := decrypt.DataWithFormat(b, format)
+	if err != nil {
+		return nil, fmt.Errorf("trouble decrypting file: %w", err)
+	}
+	return data, nil
+}
+
+func fileKeyPath(file string) (string, string) {
+	slices := strings.Split(file, "=")
+	if len(slices) == 1 {
+		return filepath.Base(file), file
+	} else if len(slices) > 2 {
+		fmt.Fprintf(os.Stderr, "invalid format in file generator %s", file)
+		os.Exit(1)
+	}
+	return slices[0], slices[1]
 }
