@@ -45,8 +45,18 @@ type ksops struct {
 }
 
 func help() {
-	fmt.Fprintln(os.Stderr, "received too few args:", os.Args)
-	fmt.Fprintln(os.Stderr, "always invoke this via kustomize plugins")
+	msg := `
+		KSOPS is a flexible kustomize plugin for SOPS encrypted resources.
+		KSOPS supports both legacy and KRM style exec kustomize functions.
+
+		kustomize Usage:
+		- kustomize build --enable-alpha-plugins --enable-exec
+
+		Standalone Usage :
+		- Legacy: ksops secret-generator.yaml
+		- KRM: cat secret-generator.yaml | ksops
+`
+	fmt.Fprintf(os.Stderr, "%s", strings.ReplaceAll(msg, "		", ""))
 	os.Exit(1)
 }
 
