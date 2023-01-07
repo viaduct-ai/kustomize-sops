@@ -68,7 +68,7 @@ func main() {
 		}
 		err := fn.AsMain(fn.ResourceListProcessorFunc(krm))
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "unable to generate manifests: %v", err)
+			fmt.Fprintf(os.Stderr, "unable to generate manifests: %v", err)
 			os.Exit(1)
 		}
 		return
@@ -80,13 +80,13 @@ func main() {
 	// load the second argument, the file path
 	manifest, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "unable to read in manifest", os.Args[1])
+		fmt.Fprintf(os.Stderr, "unable to read in manifest: %s", os.Args[1])
 		os.Exit(1)
 	}
 
 	result, err := generate(manifest)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "unable to generate manifests: %v", err)
+		fmt.Fprintf(os.Stderr, "unable to generate manifests: %v", err)
 		os.Exit(1)
 	}
 
