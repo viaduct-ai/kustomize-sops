@@ -101,29 +101,35 @@ func main() {
 
 	// ignore the first file name argument
 	// load the second argument, the file path
-	generatorContent, err := ioutil.ReadFile(os.Args[1])
+	manifest, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "unable to read in manifest", os.Args[1])
 		os.Exit(1)
 	}
 
+	result := generate(manifest)
+
+	fmt.Print(result)
+}
+
+func generate(raw []byte) string {
 	var manifest ksops
-	err = yaml.Unmarshal(generatorContent, &manifest)
+	err := yaml.Unmarshal(raw, &manifest)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error unmarshalling manifest content: %q \n%s\n", err, generatorContent)
+		fmt.Fprintf(os.Stderr, "error unmarshalling manifest content: %q \n%s\n", err, raw)
 		os.Exit(1)
 	}
 
 	if manifest.Files == nil && manifest.SecretFrom == nil {
-		fmt.Fprintf(os.Stderr, "missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", generatorContent)
+		fmt.Fprintf(os.Stderr, "missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", raw)
 		os.Exit(1)
 	}
 
 	var output bytes.Buffer
 
 	for _, file := range manifest.Files {
-		data := decryptFile(file, generatorContent)
+		data := decryptFile(file, raw)
 
 		output.Write(data)
 		output.WriteString("\n---\n")
@@ -134,13 +140,13 @@ func main() {
 
 		for _, file := range secretFrom.Files {
 			key, path := getKeyPath(file)
-			data := decryptFile(path, generatorContent)
+			data := decryptFile(path, raw)
 
 			stringData[key] = string(data)
 		}
 
 		for _, file := range secretFrom.Envs {
-			data := decryptFile(file, generatorContent)
+			data := decryptFile(file, raw)
 
 			env, err := godotenv.Unmarshal(string(data))
 			if err != nil {
@@ -168,5 +174,5 @@ func main() {
 		output.WriteString("---\n")
 	}
 
-	fmt.Print(output.String())
+	return output.String()
 }
