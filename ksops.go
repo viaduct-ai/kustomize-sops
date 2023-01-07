@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/joho/godotenv"
 	"go.mozilla.org/sops/v3/cmd/sops/formats"
 	"go.mozilla.org/sops/v3/decrypt"
@@ -90,7 +91,11 @@ func main() {
 		if !(stat.Mode()&os.ModeCharDevice == 0) {
 			help()
 		}
-		panic("KRM plugin not implemented")
+		err := fn.AsMain(fn.ResourceListProcessorFunc(krm))
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "unable to generate manifests: %v", err)
+			os.Exit(1)
+		}
 		return
 	}
 
@@ -104,23 +109,48 @@ func main() {
 		os.Exit(1)
 	}
 
-	result := generate(manifest)
+	result, err := generate(manifest)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "unable to generate manifests: %v", err)
+		os.Exit(1)
+	}
 
 	fmt.Print(result)
 }
 
-func generate(raw []byte) string {
+func krm(rl *fn.ResourceList) (bool, error) {
+	var items fn.KubeObjects
+	for _, manifest := range rl.Items {
+		result, err := generate([]byte(manifest.String()))
+		if err != nil {
+			rl.LogResult(err)
+			return false, err
+		}
+
+		kube, err := fn.ParseKubeObject([]byte(result))
+		if err != nil {
+			rl.LogResult(err)
+			return false, err
+		}
+
+		items = append(items, kube)
+	}
+
+	rl.Items = items
+
+	return true, nil
+}
+
+func generate(raw []byte) (string, error) {
 	var manifest ksops
 	err := yaml.Unmarshal(raw, &manifest)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error unmarshalling manifest content: %q \n%s\n", err, raw)
-		os.Exit(1)
+		return "", fmt.Errorf("error unmarshalling manifest content: %q \n%s\n", err, raw)
 	}
 
 	if manifest.Files == nil && manifest.SecretFrom == nil {
-		fmt.Fprintf(os.Stderr, "missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", raw)
-		os.Exit(1)
+		return "", fmt.Errorf("missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", raw)
 	}
 
 	var output bytes.Buffer
@@ -128,8 +158,7 @@ func generate(raw []byte) string {
 	for _, file := range manifest.Files {
 		data, err := decryptFile(file)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error decrypting file: %v", err)
-			os.Exit(1)
+			return "", fmt.Errorf("error decrypting file %q from manifest.Files: %w", file, err)
 		}
 
 		output.Write(data)
@@ -140,11 +169,10 @@ func generate(raw []byte) string {
 		stringData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
-			key, path := getKeyPath(file)
+			key, _ := getKeyPath(file)
 			data, err := decryptFile(file)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error decrypting file: %v", err)
-				os.Exit(1)
+				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", file, err)
 			}
 
 			stringData[key] = string(data)
@@ -153,14 +181,12 @@ func generate(raw []byte) string {
 		for _, file := range secretFrom.Envs {
 			data, err := decryptFile(file)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error decrypting file: %v", err)
-				os.Exit(1)
+				return "", fmt.Errorf("error decrypting file %q from secretFrom.Envs: %w", file, err)
 			}
 
 			env, err := godotenv.Unmarshal(string(data))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error unmarshalling .env file %s", err.Error())
-				os.Exit(1)
+				return "", fmt.Errorf("error unmarshalling .env file %q: %w", file, err)
 			}
 			for k, v := range env {
 				stringData[k] = v
@@ -176,12 +202,11 @@ func generate(raw []byte) string {
 		}
 		d, err := yaml.Marshal(&s)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error marshalling manifest %s", err.Error())
-			os.Exit(1)
+			return "", fmt.Errorf("error marshalling manifest: %w", err)
 		}
 		output.WriteString(string(d))
 		output.WriteString("---\n")
 	}
 
-	return output.String()
+	return output.String(), nil
 }
