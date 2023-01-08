@@ -18,12 +18,15 @@ func runKSOPSPluginIntegrationTest(t *testing.T, testDir string, kustomizeVersio
 		t.Fatalf("error readding expected resources file %s: %v", path.Join(testDir, "want.yaml"), err)
 	}
 
-	pluginFlag := "--enable-alpha-plugins"
+	arg := []string{"build"}
+	flags := []string{"--enable-alpha-plugins", "--enable-exec"}
 	if kustomizeVersion == "v3" {
-		pluginFlag = "--enable_alpha_plugins"
+		flags = []string{"--enable_alpha_plugins"}
 	}
+	arg = append(arg, flags...)
+	arg = append(arg, testDir)
 
-	cmd := exec.Command("kustomize", "build", pluginFlag, testDir)
+	cmd := exec.Command("kustomize", arg...)
 	out := bytes.Buffer{}
 	cmd.Stdout = &out
 	cmd.Stderr = &out

@@ -107,19 +107,20 @@ func main() {
 func krm(rl *fn.ResourceList) (bool, error) {
 	var items fn.KubeObjects
 	for _, manifest := range rl.Items {
-		result, err := generate([]byte(manifest.String()))
+		out, err := generate([]byte(manifest.String()))
 		if err != nil {
 			rl.LogResult(err)
 			return false, err
 		}
 
-		kube, err := fn.ParseKubeObject([]byte(result))
+		// generate can return multiple manifests
+		objs, err := fn.ParseKubeObjects([]byte(out))
 		if err != nil {
 			rl.LogResult(err)
 			return false, err
 		}
 
-		items = append(items, kube)
+		items = append(items, objs...)
 	}
 
 	rl.Items = items
@@ -141,17 +142,20 @@ func generate(raw []byte) (string, error) {
 
 	var output bytes.Buffer
 
-	for _, file := range manifest.Files {
+	for i, file := range manifest.Files {
 		data, err := decryptFile(file)
 		if err != nil {
 			return "", fmt.Errorf("error decrypting file %q from manifest.Files: %w", file, err)
 		}
 
 		output.Write(data)
-		output.WriteString("\n---\n")
+		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
+		if i < len(manifest.Files)-1 {
+			output.WriteString("\n---\n")
+		}
 	}
 
-	for _, secretFrom := range manifest.SecretFrom {
+	for i, secretFrom := range manifest.SecretFrom {
 		stringData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
@@ -191,6 +195,10 @@ func generate(raw []byte) (string, error) {
 			return "", fmt.Errorf("error marshalling manifest: %w", err)
 		}
 		output.WriteString(string(d))
+		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
+		if i < len(manifest.SecretFrom)-1 {
+			output.WriteString("\n---\n")
+		}
 		output.WriteString("---\n")
 	}
 
