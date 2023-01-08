@@ -11,7 +11,17 @@ fi
 PLUGIN_NAME="ksops"
 
 # ------------------------
-# ksops Plugin
+# ksops KRM Plugin
+# Install to Go executable path if it exists
+# ------------------------
+if [[ -d "$GOPATH" ]]; then
+  echo "Copying plugin to the go executable path..."
+  echo "cp $PLUGIN_NAME $GOPATH/bin/"
+  cp $PLUGIN_NAME $GOPATH/bin/
+fi
+
+# ------------------------
+# ksops legacy Plugin
 # ------------------------
 
 PLUGIN_PATH="$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/$PLUGIN_NAME/"
@@ -24,7 +34,7 @@ echo "cp $PLUGIN_NAME $PLUGIN_PATH"
 cp $PLUGIN_NAME $PLUGIN_PATH
 
 # ------------------------
-# Deprecated ksops-exec Plugin
+# Deprecated ksops-exec legacy Plugin
 # Please migrate to ksops if you are using ksops-exec
 # ------------------------
 DEPRECATED_EXEC_PLUGIN_NAME="ksops-exec"
