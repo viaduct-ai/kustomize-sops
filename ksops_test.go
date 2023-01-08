@@ -44,36 +44,36 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 		dir  string
 	}{
 		{
-			name: "Single Resource",
-			dir:  "test/single",
+			name: "Legacy Single Resource",
+			dir:  "test/legacy/single",
 		},
 		{
-			name: "Multiple Resources",
-			dir:  "test/multiple",
+			name: "Legacy Multiple Resources",
+			dir:  "test/legacy/multiple",
 		},
 		{
-			name: "Hash Suffix",
-			dir:  "test/hash",
+			name: "Legacy Hash Suffix",
+			dir:  "test/legacy/hash",
 		},
 		{
-			name: "Replace Behavior",
-			dir:  "test/behaviors",
+			name: "Legacy Replace Behavior",
+			dir:  "test/legacy/behaviors",
 		},
 		{
-			name: "From File",
-			dir:  "test/file",
+			name: "Legacy From File",
+			dir:  "test/legacy/file",
 		},
 		{
-			name: "From Envs",
-			dir:  "test/envs",
+			name: "Legacy From Envs",
+			dir:  "test/legacy/envs",
 		},
 		{
-			name: "Override Key",
-			dir:  "test/override",
+			name: "Legacy Override Key",
+			dir:  "test/legacy/override",
 		},
 		{
-			name: "Secret Metadata",
-			dir:  "test/metadata",
+			name: "Legacy Secret Metadata",
+			dir:  "test/legacy/metadata",
 		},
 		{
 			name: "KRM Single Resource",
