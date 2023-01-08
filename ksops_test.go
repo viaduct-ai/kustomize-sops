@@ -44,7 +44,7 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 		dir  string
 	}{
 		{
-			name: "Simple",
+			name: "Single Resource",
 			dir:  "test/single",
 		},
 		{
@@ -76,8 +76,36 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			dir:  "test/metadata",
 		},
 		{
-			name: "KRM",
-			dir:  "test/krm",
+			name: "KRM Single Resource",
+			dir:  "test/krm/single",
+		},
+		{
+			name: "KRM Multiple Resources",
+			dir:  "test/krm/multiple",
+		},
+		{
+			name: "KRM Hash Suffix",
+			dir:  "test/krm/hash",
+		},
+		{
+			name: "KRM Replace Behavior",
+			dir:  "test/krm/behaviors",
+		},
+		{
+			name: "KRM From File",
+			dir:  "test/krm/file",
+		},
+		{
+			name: "KRM From Envs",
+			dir:  "test/krm/envs",
+		},
+		{
+			name: "KRM Override Key",
+			dir:  "test/krm/override",
+		},
+		{
+			name: "KRM Secret Metadata",
+			dir:  "test/krm/metadata",
 		},
 	}
 

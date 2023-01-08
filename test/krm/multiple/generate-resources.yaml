@@ -1,0 +1,15 @@
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: ksops-multiple-generator
+  annotations:
+    config.kubernetes.io/function: |
+        exec:
+          # if the binary is your PATH, you can do 
+          path: ksops
+          # otherwise, path should be relative to manifest files, like
+          # path: ../../../ksops
+files:
+  - ./secret-A.enc.yaml
+  - ./secret-B.enc.yaml
+  - ./secret-C.enc.yaml

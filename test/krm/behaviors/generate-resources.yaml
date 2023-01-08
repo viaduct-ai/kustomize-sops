@@ -1,0 +1,15 @@
+apiVersion: viaduct.ai/v2
+kind: ksops
+metadata:
+  name: ksops-behavior-replace-file-generator
+  annotations:
+    config.kubernetes.io/function: |
+        exec:
+          # if the binary is your PATH, you can do 
+          path: ksops
+          # otherwise, path should be relative to manifest files, like
+          # path: ../../../ksops
+files:
+  # NOTE: File is relative to the /base manifest! 
+  # This is different from the legacy plugin
+  - ../secret.enc.yaml
