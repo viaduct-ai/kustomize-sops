@@ -197,9 +197,8 @@ func generate(raw []byte) (string, error) {
 		output.WriteString(string(d))
 		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
 		if i < len(manifest.SecretFrom)-1 {
-			output.WriteString("\n---\n")
+			output.WriteString("---\n")
 		}
-		output.WriteString("---\n")
 	}
 
 	return output.String(), nil
