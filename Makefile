@@ -16,9 +16,10 @@ build:
 
 .PHONY: clean
 clean:
-	rm $(PLUGIN_NAME) || true
+	rm -f $(PLUGIN_NAME)
 	rm -rf $(XDG_CONFIG_HOME)/kustomize/plugin/viaduct.ai/v1/ || true
 	rm -rf $(HOME)/sigs.k8s.io/kustomize/plugin/viaduct.ai/v1/ || true
+	rm -f $(shell command -v $(PLUGIN_NAME))
 
 .PHONY: kustomize
 kustomize:
