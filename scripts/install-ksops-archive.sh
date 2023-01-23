@@ -4,7 +4,7 @@ set -e
 PLUGIN_PATH="/usr/local/bin/"
 
 if [[ ! -d "$PLUGIN_PATH" ]]; then
-  echo "$PLUGIN_PATH does not exist"
+  echo "$PLUGIN_PATH does not exist. Cannot add ksops to PATH."
 fi
 
 get_machine_arch () {
