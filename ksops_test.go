@@ -18,12 +18,15 @@ func runKSOPSPluginIntegrationTest(t *testing.T, testDir string, kustomizeVersio
 		t.Fatalf("error readding expected resources file %s: %v", path.Join(testDir, "want.yaml"), err)
 	}
 
-	pluginFlag := "--enable-alpha-plugins"
+	arg := []string{"build"}
+	flags := []string{"--enable-alpha-plugins", "--enable-exec"}
 	if kustomizeVersion == "v3" {
-		pluginFlag = "--enable_alpha_plugins"
+		flags = []string{"--enable_alpha_plugins"}
 	}
+	arg = append(arg, flags...)
+	arg = append(arg, testDir)
 
-	cmd := exec.Command("kustomize", "build", pluginFlag, testDir)
+	cmd := exec.Command("kustomize", arg...)
 	out := bytes.Buffer{}
 	cmd.Stdout = &out
 	cmd.Stderr = &out
@@ -41,36 +44,68 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 		dir  string
 	}{
 		{
-			name: "Simple",
-			dir:  "test/single",
+			name: "Legacy Single Resource",
+			dir:  "test/legacy/single",
 		},
 		{
-			name: "Multiple Resources",
-			dir:  "test/multiple",
+			name: "Legacy Multiple Resources",
+			dir:  "test/legacy/multiple",
 		},
 		{
-			name: "Hash Suffix",
-			dir:  "test/hash",
+			name: "Legacy Hash Suffix",
+			dir:  "test/legacy/hash",
 		},
 		{
-			name: "Replace Behavior",
-			dir:  "test/behaviors",
+			name: "Legacy Replace Behavior",
+			dir:  "test/legacy/behaviors",
 		},
 		{
-			name: "From File",
-			dir:  "test/file",
+			name: "Legacy From File",
+			dir:  "test/legacy/file",
 		},
 		{
-			name: "From Envs",
-			dir:  "test/envs",
+			name: "Legacy From Envs",
+			dir:  "test/legacy/envs",
 		},
 		{
-			name: "Override Key",
-			dir:  "test/override",
+			name: "Legacy Override Key",
+			dir:  "test/legacy/override",
 		},
 		{
-			name: "Secret Metadata",
-			dir:  "test/metadata",
+			name: "Legacy Secret Metadata",
+			dir:  "test/legacy/metadata",
+		},
+		{
+			name: "KRM Single Resource",
+			dir:  "test/krm/single",
+		},
+		{
+			name: "KRM Multiple Resources",
+			dir:  "test/krm/multiple",
+		},
+		{
+			name: "KRM Hash Suffix",
+			dir:  "test/krm/hash",
+		},
+		{
+			name: "KRM Replace Behavior",
+			dir:  "test/krm/behaviors",
+		},
+		{
+			name: "KRM From File",
+			dir:  "test/krm/file",
+		},
+		{
+			name: "KRM From Envs",
+			dir:  "test/krm/envs",
+		},
+		{
+			name: "KRM Override Key",
+			dir:  "test/krm/override",
+		},
+		{
+			name: "KRM Secret Metadata",
+			dir:  "test/krm/metadata",
 		},
 	}
 

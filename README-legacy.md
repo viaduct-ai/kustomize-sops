@@ -9,7 +9,6 @@
 - [Getting Started](#getting-started)
 - [Generator Options](#generator-options)
 - [Development and Testing](#development-and-testing)
-- [Legacy Exec Plugin](#legacy-exec-plugin)
 - [Argo CD Integration 🤖](#argo-cd-integration-)
 
 ## Background
@@ -18,11 +17,18 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 ## Overview
 
-`KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) [KRM exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_krm_functions/) for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
+`KSOPS`, or kustomize-SOPS, is a [kustomize](https://github.com/kubernetes-sigs/kustomize/) [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins) for SOPS encrypted resources. `KSOPS` can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugin, `KSOPS` allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
 
 ## Requirements
 
 - [kustomize](https://github.com/kubernetes-sigs/kustomize/)
+- `XDG_CONFIG_HOME` environment variable is set in your shell. If it's not set, run the following
+
+```bash
+# Don't forget to define XDG_CONFIG_HOME in your .bashrc or .zshrc
+echo "export XDG_CONFIG_HOME=\$HOME/.config" >> $HOME/.zshrc
+source $HOME/.zshrc
+```
 
 ## Installation
 
@@ -30,22 +36,22 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 
 Using curl
 ```bash
-curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
+# Verify the $XDG_CONFIG_HOME environment variable exists then run
+curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-legacy-ksops-archive.sh | bash
 ```
 
 Or using wget
 ```bash
-wget -qcO - https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
+# Verify the $XDG_CONFIG_HOME environment variable exists then run
+wget -qcO - https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-legacy-ksops-archive.sh | bash
 ```
 
 ### Install from Source
 
-_Note:_ Installing from source requires Go
-
 ```bash
 # Optionally, install kustomize via
 # make kustomize
-# Verify the $GOPATH environment variable exists
+# Verify the $XDG_CONFIG_HOME environment variable exists then run
 make install
 ```
 
@@ -62,13 +68,16 @@ kustomize version
 
 # Verify gpg is installed
 gpg --help
+
+# Verify XDG_CONFIG_HOME environment variable is set
+echo $XDG_CONFIG_HOME
 ```
 
 ### 1. Download and install KSOPS
 
-Make KSOPS available to your shell's PATH
 ```bash
-source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh)
+# Verify the $XDG_CONFIG_HOME environment variable exists then run
+source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-legacy-ksops-archive.sh)
 ```
 
 ### 2. Import Test PGP Keys
@@ -135,13 +144,6 @@ kind: ksops
 metadata:
   # Specify a name
   name: example-secret-generator
-  annotations:
-    config.kubernetes.io/function: |
-        exec:
-          # if the binary is in your PATH, you can do 
-          path: ksops
-          # otherwise, path should be relative to manifest files, like
-          # path: ../../../ksops
 files:
   - ./secret.enc.yaml
 EOF
@@ -164,19 +166,15 @@ EOF
 # Build with kustomize to verify
 # In kustomize v2 and v3 the command is
 # kustomize build --enable_alpha_plugins .
-kustomize build --enable-alpha-plugins --enable-exec .
+kustomize build --enable-alpha-plugins .
 ```
 
 ### Troubleshooting
 
 #### Sanity Checks
 
-- Validate `ksops` command is in your path
-```bash
-# Should output a path to KSOPS executable
-command -v ksops
-```
-- If you prefer to not install `ksops` to your path, make sure the path to the executable in the generator manifest is relative to the manifests files
+- Validate `ksops` is in the `kustomize` plugin path
+  - `$XDG_CONFIG_HOME/kustomize/plugin/viaduct.ai/v1/ksops/ksops`
 
 #### Check Existing Issues
 
@@ -195,10 +193,6 @@ apiVersion: viaduct.ai/v1
 kind: ksops
 metadata:
   name: example-secret-generator
-  annotations:
-    config.kubernetes.io/function: |
-        exec:
-          path: ksops
 secretFrom:
 - metadata:
     name: secret-name
@@ -219,10 +213,6 @@ apiVersion: viaduct.ai/v1
 kind: ksops
 metadata:
   name: example-secret-generator
-  annotations:
-    config.kubernetes.io/function: |
-        exec:
-          path: ksops
 secretFrom:
 - metadata:
     name: secret-name
@@ -233,7 +223,7 @@ EOF
 
 ## Generator Options
 
-`KSOPS` supports kustomize annotation based generator options. At the time of writing, the supported annotations are:
+`KSOPS` supports [kustomize exec plugins](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins/#generator-options) annotation based generator options. At the time of writing, the supported annotations are:
 
 - `kustomize.config.k8s.io/needs-hash`
 - `kustomize.config.k8s.io/behavior`
@@ -303,9 +293,17 @@ Everything is handled for you by `make test`. Just run it from the repo's root d
 make test
 ```
 
-## Legacy Exec Plugin
+## Migration from KSOPS v2.x.x to v3.x.x
 
-If you are on an older version (`<=v3.x.x`) of `KSOPS` or want to use legacy exec style plugin, the then read the [Legacy README](./README-legacy.md) for instructions.
+### Required Changes
+
+- The opt-in `ksops-exec` kind is deprecated. If you are using the `ksops-exec` kind, please migrate to `ksops` once you've upgrade to _v3.x.x_.
+
+### Background
+
+In `KSOPS` _v3.x.x_, the kustomize plugin `ksops` was migrated to an [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins) from a [Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins) because of simpler installation, dependency management, and package maintenance.
+
+`KSOPS` was originally developed as a [kustomize Go plugin](https://kubernetes-sigs.github.io/kustomize/guides/plugins/#go-plugins). Up until _v2.2.0_ this was the only installation option, but in _v2.2.0_, `KSOPS` introduced an opt-in [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins) under via the `ksops-exec` kind. Now that `KSOPS` is only an [exec plugin](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/exec_plugins), the `ksops-exec` kind is deprecated.
 
 ## Argo CD Integration 🤖
 
@@ -317,7 +315,7 @@ If you are on an older version (`<=v3.x.x`) of `KSOPS` or want to use legacy exe
 
 ### Enable Kustomize Plugins via Argo CD ConfigMap
 
-As of now to allow [Argo CD](https://github.com/argoproj/argo-cd/) to use [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugins you must use the `--enable-alpha-plugins` and `--enable-exec` flags. This is configured by the `kustomize.buildOptions` setting in the [Argo CD](https://github.com/argoproj/argo-cd/) ConfigMap
+As of now to allow [Argo CD](https://github.com/argoproj/argo-cd/) to use [kustomize](https://github.com/kubernetes-sigs/kustomize/) plugins you must use the `enable-alpha-plugins` flag. This is configured by the `kustomize.buildOptions` setting in the [Argo CD](https://github.com/argoproj/argo-cd/) ConfigMap
 
 ```yaml
 apiVersion: v1
@@ -328,7 +326,9 @@ metadata:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
 data:
-  kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
+  # For KSOPs versions < v2.5.0, use the old kustomize flag style
+  # kustomize.buildOptions: "--enable_alpha_plugins"
+  kustomize.buildOptions: "--enable-alpha-plugins"
 ```
 
 ### KSOPS Repo Sever Patch
@@ -368,11 +368,15 @@ spec:
             - mountPath: /usr/local/bin/kustomize
               name: custom-tools
               subPath: kustomize
-            - mountPath: /usr/local/bin/ksops
+              # Verify this matches a XDG_CONFIG_HOME=/.config env variable
+            - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
               name: custom-tools
               subPath: ksops
+          # 4. Set the XDG_CONFIG_HOME env variable to allow kustomize to detect the plugin
+          env:
+            - name: XDG_CONFIG_HOME
+              value: /.config
         ## If you use AWS or GCP KMS, don't forget to include the necessary credentials to decrypt the secrets!
-        # env:
         #  - name: AWS_ACCESS_KEY_ID
         #    valueFrom:
         #      secretKeyRef:
@@ -409,13 +413,17 @@ FROM argoproj/argocd:$ARGO_CD_VERSION
 # Switch to root for the ability to perform install
 USER root
 
+# Set the kustomize home directory
+ENV XDG_CONFIG_HOME=$HOME/.config
+ENV KUSTOMIZE_PLUGIN_PATH=$XDG_CONFIG_HOME/kustomize/plugin/
+
 ARG PKG_NAME=ksops
 
 # Override the default kustomize executable with the Go built version
 COPY --from=ksops-builder /go/bin/kustomize /usr/local/bin/kustomize
 
-# Add ksops executable to path
-COPY --from=ksops-builder /go/bin/ksops /usr/local/bin/ksops
+# Copy the plugin to kustomize plugin path
+COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/*  $KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/${PKG_NAME}/
 
 # Switch back to non-root user
 USER argocd
@@ -429,9 +437,14 @@ We can setup `KSOPS` custom tooling in the [Argo CD Chart](https://github.com/ar
 # Enable Kustomize Alpha Plugins via Argo CD ConfigMap, required for ksops
 server:
   config:
-    kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
+    kustomize.buildOptions: "--enable-alpha-plugins"
 
 repoServer:
+  # Set the XDG_CONFIG_HOME env variable to allow kustomize to detect the plugin
+  env:
+    - name: XDG_CONFIG_HOME
+      value: /.config
+
   # Use init containers to configure custom tooling
   # https://argoproj.github.io/argo-cd/operator-manual/custom_tools/
   volumes:
@@ -454,7 +467,8 @@ repoServer:
     - mountPath: /usr/local/bin/kustomize
       name: custom-tools
       subPath: kustomize
-    - mountPath: /usr/local/bin/ksops
+      # Verify this matches a XDG_CONFIG_HOME=/.config env variable
+    - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
       name: custom-tools
       subPath: ksops
 ```

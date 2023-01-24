@@ -2,7 +2,7 @@
 Copyright 2019 viaduct.ai
 SPDX-License-Identifier: Apache-2.0
 
-KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resource
+# KSOPS - A Flexible Kustomize Plugin for SOPS Encrypted Resource
 
 KSOPS, or kustomize-SOPS, is a kustomize plugin for SOPS encrypted resources. KSOPS can be used to decrypt any Kubernetes resource, but is most commonly used to decrypt encrypted Kubernetes Secrets and ConfigMaps. As a kustomize plugin, KSOPS allows you to manage, build, and apply encrypted manifests the same way you manage the rest of your Kubernetes manifests.
 */
@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/joho/godotenv"
 	"go.mozilla.org/sops/v3/cmd/sops/formats"
 	"go.mozilla.org/sops/v3/decrypt"
@@ -43,89 +44,139 @@ type ksops struct {
 	SecretFrom []secretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
 }
 
-func decryptFile(file string, generatorContent []byte) []byte {
-	b, err := ioutil.ReadFile(file)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error reading %q: %q\n", file, err.Error())
-		fmt.Fprintf(os.Stderr, "manifest content: %s", generatorContent)
-		os.Exit(1)
-	}
+func help() {
+	msg := `
+		KSOPS is a flexible kustomize plugin for SOPS encrypted resources.
+		KSOPS supports both legacy and KRM style exec kustomize functions.
 
-	format := formats.FormatForPath(file)
-	data, err := decrypt.DataWithFormat(b, format)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "trouble decrypting file %s", err.Error())
-		os.Exit(1)
-	}
-	return data
-}
+		kustomize Usage:
+		- kustomize build --enable-alpha-plugins --enable-exec
 
-func getKeyPath(file string) (string, string) {
-	slices := strings.Split(file, "=")
-	if len(slices) == 1 {
-		return filepath.Base(file), file
-	} else if len(slices) > 2 {
-		fmt.Fprintf(os.Stderr, "invalid format in file generator %s", file)
-		os.Exit(1)
-	}
-	return slices[0], slices[1]
+		Standalone Usage :
+		- Legacy: ksops secret-generator.yaml
+		- KRM: cat secret-generator.yaml | ksops
+`
+	fmt.Fprintf(os.Stderr, "%s", strings.ReplaceAll(msg, "		", ""))
+	os.Exit(1)
 }
 
 // main executes KOSPS as an exec plugin
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Fprintln(os.Stderr, "received too few args:", os.Args)
-		fmt.Fprintln(os.Stderr, "always invoke this via kustomize plugins")
-		os.Exit(1)
+	nargs := len(os.Args)
+	if !(nargs == 1 || nargs == 2) {
+		help()
 	}
+
+	// If one argument, assume KRM style
+	if nargs == 1 {
+		// https://stackoverflow.com/questions/22744443/check-if-there-is-something-to-read-on-stdin-in-golang
+		stat, _ := os.Stdin.Stat()
+
+		// Check the StdIn content.
+		if !(stat.Mode()&os.ModeCharDevice == 0) {
+			help()
+		}
+		err := fn.AsMain(fn.ResourceListProcessorFunc(krm))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "unable to generate manifests: %v", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	// If two argument, assume legacy style
 
 	// ignore the first file name argument
 	// load the second argument, the file path
-	generatorContent, err := ioutil.ReadFile(os.Args[1])
+	manifest, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "unable to read in manifest", os.Args[1])
+		fmt.Fprintf(os.Stderr, "unable to read in manifest: %s", os.Args[1])
 		os.Exit(1)
 	}
 
+	result, err := generate(manifest)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "unable to generate manifests: %v", err)
+		os.Exit(1)
+	}
+
+	fmt.Print(result)
+}
+
+// https://pkg.go.dev/github.com/GoogleContainerTools/kpt-functions-sdk/go/fn#hdr-KRM_Function
+func krm(rl *fn.ResourceList) (bool, error) {
+	var items fn.KubeObjects
+	for _, manifest := range rl.Items {
+		out, err := generate([]byte(manifest.String()))
+		if err != nil {
+			rl.LogResult(err)
+			return false, err
+		}
+
+		// generate can return multiple manifests
+		objs, err := fn.ParseKubeObjects([]byte(out))
+		if err != nil {
+			rl.LogResult(err)
+			return false, err
+		}
+
+		items = append(items, objs...)
+	}
+
+	rl.Items = items
+
+	return true, nil
+}
+
+func generate(raw []byte) (string, error) {
 	var manifest ksops
-	err = yaml.Unmarshal(generatorContent, &manifest)
+	err := yaml.Unmarshal(raw, &manifest)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error unmarshalling manifest content: %q \n%s\n", err, generatorContent)
-		os.Exit(1)
+		return "", fmt.Errorf("error unmarshalling manifest content: %q \n%s", err, raw)
 	}
 
 	if manifest.Files == nil && manifest.SecretFrom == nil {
-		fmt.Fprintf(os.Stderr, "missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", generatorContent)
-		os.Exit(1)
+		return "", fmt.Errorf("missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", raw)
 	}
 
 	var output bytes.Buffer
 
-	for _, file := range manifest.Files {
-		data := decryptFile(file, generatorContent)
+	for i, file := range manifest.Files {
+		data, err := decryptFile(file)
+		if err != nil {
+			return "", fmt.Errorf("error decrypting file %q from manifest.Files: %w", file, err)
+		}
 
 		output.Write(data)
-		output.WriteString("\n---\n")
+		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
+		if i < len(manifest.Files)-1 {
+			output.WriteString("\n---\n")
+		}
 	}
 
-	for _, secretFrom := range manifest.SecretFrom {
+	for i, secretFrom := range manifest.SecretFrom {
 		stringData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
-			key, path := getKeyPath(file)
-			data := decryptFile(path, generatorContent)
+			key, path := fileKeyPath(file)
+			data, err := decryptFile(path)
+			if err != nil {
+				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", path, err)
+			}
 
 			stringData[key] = string(data)
 		}
 
 		for _, file := range secretFrom.Envs {
-			data := decryptFile(file, generatorContent)
+			data, err := decryptFile(file)
+			if err != nil {
+				return "", fmt.Errorf("error decrypting file %q from secretFrom.Envs: %w", file, err)
+			}
 
 			env, err := godotenv.Unmarshal(string(data))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error unmarshalling .env file %s", err.Error())
-				os.Exit(1)
+				return "", fmt.Errorf("error unmarshalling .env file %q: %w", file, err)
 			}
 			for k, v := range env {
 				stringData[k] = v
@@ -141,12 +192,39 @@ func main() {
 		}
 		d, err := yaml.Marshal(&s)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error marshalling manifest %s", err.Error())
-			os.Exit(1)
+			return "", fmt.Errorf("error marshalling manifest: %w", err)
 		}
 		output.WriteString(string(d))
-		output.WriteString("---\n")
+		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
+		if i < len(manifest.SecretFrom)-1 {
+			output.WriteString("---\n")
+		}
 	}
 
-	fmt.Print(output.String())
+	return output.String(), nil
+}
+
+func decryptFile(file string) ([]byte, error) {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("error reading %q: %w", file, err)
+	}
+
+	format := formats.FormatForPath(file)
+	data, err := decrypt.DataWithFormat(b, format)
+	if err != nil {
+		return nil, fmt.Errorf("trouble decrypting file: %w", err)
+	}
+	return data, nil
+}
+
+func fileKeyPath(file string) (string, string) {
+	slices := strings.Split(file, "=")
+	if len(slices) == 1 {
+		return filepath.Base(file), file
+	} else if len(slices) > 2 {
+		fmt.Fprintf(os.Stderr, "invalid format in file generator %s", file)
+		os.Exit(1)
+	}
+	return slices[0], slices[1]
 }
