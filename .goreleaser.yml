@@ -17,7 +17,7 @@ builds:
 archives:
   - id: default
     name_template: >-
-      {{ .ProjectName }}_
+      {{ .ProjectName }}_{{ .Version }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
@@ -25,8 +25,7 @@ archives:
 
   - id: latest
     name_template: >-
-      {{ .ProjectName }}_
-      latest_
+      {{ .ProjectName }}_latest_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
