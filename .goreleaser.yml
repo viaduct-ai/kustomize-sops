@@ -16,22 +16,20 @@ builds:
 
 archives:
   - id: default
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
 
   - id: latest
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
-
-    name_template: "{{ .ProjectName }}_latest_{{ .Os }}_{{ .Arch }}"
+    name_template: >-
+      {{ .ProjectName }}_latest_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
 
 checksum:
   name_template: 'checksums.txt'
@@ -50,14 +48,16 @@ release:
     name: kustomize-sops
 
 dockers:
+
+  - use: buildx
   # Templates of the Docker image names.
-  - image_templates:
-      - "viaductoss/{{ .ProjectName }}:latest"
-      - "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
-      - "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
-      - "quay.io/viaductoss/{{ .ProjectName }}:latest"
-      - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}"
-      - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}"
+    image_templates:
+      - "viaductoss/{{ .ProjectName }}:latest-amd64"
+      - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
+      - "quay.io/viaductoss/{{ .ProjectName }}:latest-amd64"
+      - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
 
     # Template of the docker build flags.
     build_flag_templates:
@@ -67,9 +67,6 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--platform=linux/amd64"
-
-    # For multiple architectures
-    use: buildx
 
     # If your Dockerfile copies files other than the binary itself,
     # you should list them here as well.
@@ -89,10 +86,13 @@ dockers:
       # include .git for version
       - .git/
 
+  - use: buildx
   # Templates of the Docker image names.
-  - image_templates:
+    image_templates:
+      - "viaductoss/{{ .ProjectName }}:latest-arm64"
       - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
       - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
+      - "quay.io/viaductoss/{{ .ProjectName }}:latest-arm64"
       - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
       - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
 
@@ -105,8 +105,6 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--platform=linux/arm64"
 
-    # For multiple architectures
-    use: buildx
 
     # If your Dockerfile copies files other than the binary itself,
     # you should list them here as well.
@@ -125,3 +123,36 @@ dockers:
       - ksops.go
       # include .git for version
       - .git/
+
+docker_manifests:
+- name_template: "viaductoss/{{ .ProjectName }}:latest"
+  image_templates:
+  - "viaductoss/{{ .ProjectName }}:latest-amd64"
+  - "viaductoss/{{ .ProjectName }}:latest-arm64"
+
+- name_template: "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
+  image_templates:
+  - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
+  - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
+
+
+- name_template: "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
+  image_templates:
+  - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
+  - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
+
+- name_template: "quay.io/viaductoss/{{ .ProjectName }}:latest"
+  image_templates:
+  - "quay.io/viaductoss/{{ .ProjectName }}:latest-amd64"
+  - "quay.io/viaductoss/{{ .ProjectName }}:latest-arm64"
+
+- name_template: "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}"
+  image_templates:
+  - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
+  - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
+
+
+- name_template: "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}"
+  image_templates:
+  - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
+  - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
