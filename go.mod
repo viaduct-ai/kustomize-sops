@@ -3,7 +3,7 @@ module github.com/viaduct-ai/kustomize-sops
 go 1.18
 
 require (
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	go.mozilla.org/sops/v3 v3.7.3
 	sigs.k8s.io/kustomize/api v0.12.1
 	sigs.k8s.io/yaml v1.3.0
