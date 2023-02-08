@@ -10,6 +10,4 @@ metadata:
           # otherwise, path should be relative to manifest files, like
           # path: ../../../ksops
 files:
-  # NOTE: File is relative to the /base manifest! 
-  # This is different from the legacy plugin
-  - ../secret.enc.yaml
+  - ./secret.enc.yaml
