@@ -1,3 +1,4 @@
+LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
 ARG GO_VERSION="1.19"
 
 #--------------------------------------------#
