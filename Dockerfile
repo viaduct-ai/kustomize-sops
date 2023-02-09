@@ -1,4 +1,3 @@
-LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
 ARG GO_VERSION="1.19"
 
 #--------------------------------------------#
@@ -6,6 +5,8 @@ ARG GO_VERSION="1.19"
 #--------------------------------------------#
 
 FROM golang:$GO_VERSION
+
+LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
 
 ARG TARGETPLATFORM
 ARG PKG_NAME=ksops
