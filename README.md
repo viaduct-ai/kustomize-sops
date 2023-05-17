@@ -29,11 +29,13 @@ At [Viaduct](https://www.viaduct.ai/), we manage our Kubernetes resources via th
 ### Install the Latest Release
 
 Using curl
+
 ```bash
 curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
 ```
 
 Or using wget
+
 ```bash
 wget -qcO - https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
 ```
@@ -67,6 +69,7 @@ gpg --help
 ### 1. Download and install KSOPS
 
 Make KSOPS available to your shell's PATH
+
 ```bash
 source <(curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh)
 ```
@@ -138,7 +141,7 @@ metadata:
   annotations:
     config.kubernetes.io/function: |
         exec:
-          # if the binary is in your PATH, you can do 
+          # if the binary is in your PATH, you can do
           path: ksops
           # otherwise, path should be relative to manifest files, like
           # path: ../../../ksops
@@ -172,10 +175,12 @@ kustomize build --enable-alpha-plugins --enable-exec .
 #### Sanity Checks
 
 - Validate `ksops` command is in your path
+
 ```bash
 # Should output a path to KSOPS executable
 command -v ksops
 ```
+
 - If you prefer to not install `ksops` to your path, make sure the path to the executable in the generator manifest is relative to the manifests files
 
 #### Check Existing Issues
@@ -212,6 +217,7 @@ secretFrom:
   - secret.yaml=./secret.enc.yaml
 EOF
 ```
+
 ```bash
 # Create a Kubernetes Secret from encrypted dotenv file
 cat <<EOF > secret-generator.yaml
@@ -351,7 +357,7 @@ spec:
       # 2. Use an init container to download/copy custom binaries into the emptyDir
       initContainers:
         - name: install-ksops
-          image: viaductoss/ksops:v4.1.1
+          image: viaductoss/ksops:v4.1.2
           command: ["/bin/sh", "-c"]
           args:
             - echo "Installing KSOPS...";
@@ -392,7 +398,7 @@ Alternatively, for more control and faster pod start times you can build a custo
 ```Dockerfile
 ARG ARGO_CD_VERSION="v1.7.7"
 # https://github.com/argoproj/argo-cd/blob/master/Dockerfile
-ARG KSOPS_VERSION="v4.1.1"
+ARG KSOPS_VERSION="v4.1.2"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
@@ -440,7 +446,7 @@ repoServer:
 
   initContainers:
     - name: install-ksops
-      image: viaductoss/ksops:v4.1.1
+      image: viaductoss/ksops:v4.1.2
       command: ["/bin/sh", "-c"]
       args:
         - echo "Installing KSOPS...";
