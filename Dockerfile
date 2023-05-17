@@ -4,7 +4,8 @@ ARG GO_VERSION="1.19"
 #--------Build KSOPS and Kustomize-----------#
 #--------------------------------------------#
 
-FROM golang:$GO_VERSION
+# Stage 1: Build KSOPS and Kustomize
+FROM golang:$GO_VERSION AS builder
 
 LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
 
@@ -24,12 +25,17 @@ RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) && \
 
 WORKDIR /go/src/github.com/viaduct-ai/kustomize-sops
 
-ADD . .
-
-# Perform the build
+COPY . .
+RUN go mod download
 RUN make install
-
-# Install kustomize via Go
 RUN make kustomize
+
+# # Stage 2: Final image
+FROM debian:bullseye-slim
+
+# Copy only necessary files from the builder stage
+COPY --from=builder /go/bin/ksops /usr/local/bin/ksops
+COPY --from=builder /go/bin/kustomize /usr/local/bin/kustomize
+COPY --from=builder /go/bin/kustomize-sops /usr/local/bin/kustomize-sops
 
 CMD ["kustomize", "version"]
