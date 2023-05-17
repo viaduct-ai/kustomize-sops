@@ -7,8 +7,6 @@ ARG GO_VERSION="1.19"
 # Stage 1: Build KSOPS and Kustomize
 FROM golang:$GO_VERSION AS builder
 
-LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
-
 ARG TARGETPLATFORM
 ARG PKG_NAME=ksops
 
@@ -32,6 +30,8 @@ RUN make kustomize
 
 # # Stage 2: Final image
 FROM debian:bullseye-slim
+
+LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
 
 # Copy only necessary files from the builder stage
 COPY --from=builder /go/bin/ksops /usr/local/bin/ksops
