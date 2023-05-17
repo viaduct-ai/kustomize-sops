@@ -394,9 +394,9 @@ spec:
 Alternatively, for more control and faster pod start times you can build a custom docker image.
 
 ```Dockerfile
-ARG ARGO_CD_VERSION="v1.7.7"
+ARG ARGO_CD_VERSION="v2.6.7"
 # https://github.com/argoproj/argo-cd/blob/master/Dockerfile
-ARG KSOPS_VERSION="v3.1.0"
+ARG KSOPS_VERSION="v4.1.3"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
@@ -420,10 +420,10 @@ ENV KUSTOMIZE_PLUGIN_PATH=$XDG_CONFIG_HOME/kustomize/plugin/
 ARG PKG_NAME=ksops
 
 # Override the default kustomize executable with the Go built version
-COPY --from=ksops-builder /go/bin/kustomize /usr/local/bin/kustomize
+COPY --from=ksops-builder /usr/local/bin/kustomize /usr/local/bin/kustomize
 
 # Copy the plugin to kustomize plugin path
-COPY --from=ksops-builder /go/src/github.com/viaduct-ai/kustomize-sops/*  $KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/${PKG_NAME}/
+COPY --from=ksops-builder /usr/local/bin/ksops  $KUSTOMIZE_PLUGIN_PATH/viaduct.ai/v1/${PKG_NAME}/
 
 # Switch back to non-root user
 USER argocd
@@ -453,7 +453,7 @@ repoServer:
 
   initContainers:
     - name: install-ksops
-      image: viaductoss/ksops:v3.1.0
+      image: viaductoss/ksops:v4.1.3
       command: ["/bin/sh", "-c"]
       args:
         - echo "Installing KSOPS...";
