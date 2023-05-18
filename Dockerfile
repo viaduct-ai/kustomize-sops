@@ -38,4 +38,13 @@ COPY --from=builder /go/bin/ksops /usr/local/bin/ksops
 COPY --from=builder /go/bin/kustomize /usr/local/bin/kustomize
 COPY --from=builder /go/bin/kustomize-sops /usr/local/bin/kustomize-sops
 
+# Create a symlink from /usr/local/bin/ksops to /go/bin/ksops to preserve backwards compatibility (this will be removed in a future release)
+RUN mkdir -p /go/bin
+RUN ln -s /usr/local/bin/ksops /go/bin/ksops
+RUN ln -s /usr/local/bin/kustomize /go/bin/kustomize
+RUN ln -s /usr/local/bin/kustomize-sops /go/bin/kustomize-sops
+
+# Change working directory to /user/local/bin
+WORKDIR /usr/local/bin
+
 CMD ["kustomize", "version"]
