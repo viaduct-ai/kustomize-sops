@@ -44,7 +44,7 @@ RUN ln -s /usr/local/bin/ksops /go/bin/ksops
 RUN ln -s /usr/local/bin/kustomize /go/bin/kustomize
 RUN ln -s /usr/local/bin/kustomize-sops /go/bin/kustomize-sops
 
-# Change working directory to /user/local/bin
+# Change working directory to /usr/local/bin
 WORKDIR /usr/local/bin
 
 CMD ["kustomize", "version"]
