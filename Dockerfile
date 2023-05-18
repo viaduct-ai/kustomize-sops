@@ -33,6 +33,11 @@ FROM debian:bullseye-slim
 
 LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
 
+# ca-certs and git could be required if kustomize remote-refs are used
+RUN apt update -y \
+    && apt install -y git ca-certificates \
+    && apt clean -y && rm -rf /var/lib/apt/lists/*
+
 # Copy only necessary files from the builder stage
 COPY --from=builder /go/bin/ksops /usr/local/bin/ksops
 COPY --from=builder /go/bin/kustomize /usr/local/bin/kustomize
