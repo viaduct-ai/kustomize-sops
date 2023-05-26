@@ -48,6 +48,8 @@ RUN mkdir -p /go/bin
 RUN ln -s /usr/local/bin/ksops /go/bin/ksops
 RUN ln -s /usr/local/bin/kustomize /go/bin/kustomize
 RUN ln -s /usr/local/bin/kustomize-sops /go/bin/kustomize-sops
+# Set GOPATH to /go to preserve backwards compatibility (this will be removed in a future release)
+ENV GOPATH=/go
 
 # Change working directory to /usr/local/bin
 WORKDIR /usr/local/bin
