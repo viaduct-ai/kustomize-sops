@@ -6,7 +6,7 @@
 - [Overview](#overview)
 - [Requirements](#requirements)
 - [Installation Options](#installation-options)
-- [Getting Started](#getting-started)
+- [Getting Started](#getting-started-tutorial)
 - [Generator Options](#generator-options)
 - [Development and Testing](#development-and-testing)
 - [Legacy Exec Plugin](#legacy-exec-plugin)
