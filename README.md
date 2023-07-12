@@ -40,6 +40,12 @@ Or using wget
 wget -qcO - https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
 ```
 
+If you receive a `Permission denied` error, try running the command with `sudo`
+
+```bash
+wget -qcO - https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | sudo bash 
+```
+
 ### Install from Source
 
 _Note:_ Installing from source requires Go

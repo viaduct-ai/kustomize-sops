@@ -44,11 +44,17 @@ esac
 
 echo "Downloading latest release to ksops plugin path"
 if [ -x "$(command -v wget)" ]; then
-    wget -c https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz -O - | tar -xz -C $PLUGIN_PATH
+    wget -c https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz -O - | tar -zxvf - ksops
 elif [ -x "$(command -v curl)" ]; then
-    curl -s -L https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz | tar -xz -C $PLUGIN_PATH
+    curl -s -L https://github.com/viaduct-ai/kustomize-sops/releases/latest/download/ksops_latest_${OS}_${ARCH}.tar.gz | tar -zxvf - ksops
 else
     echo "This script requires either wget or curl."
     exit 1
 fi
-echo "Successfully installed ksops"
+
+if mv ksops $PLUGIN_PATH; then
+  echo "Successfully installed ksops"
+else
+  echo "Failed to move ksops to $PLUGIN_PATH. Maybe you should run this script as root."
+  exit 1
+fi
