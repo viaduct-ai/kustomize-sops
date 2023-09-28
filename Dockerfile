@@ -12,6 +12,7 @@ ARG PKG_NAME=ksops
 
 # Match Argo CD's build
 ENV GO111MODULE=on
+ENV CGO_ENABLED=0
 
 # Define kustomize config location
 ENV XDG_CONFIG_HOME=$HOME/.config
