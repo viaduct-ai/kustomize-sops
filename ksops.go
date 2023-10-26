@@ -10,6 +10,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -29,7 +30,7 @@ type kubernetesSecret struct {
 	Kind       string            `json:"kind" yaml:"kind"`
 	Metadata   types.ObjectMeta  `json:"metadata" yaml:"metadata"`
 	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
-	StringData map[string]string `json:"stringData" yaml:"stringData"`
+	Data       map[string]string `json:"data" yaml:"data"`
 }
 
 type secretFrom struct {
@@ -165,7 +166,7 @@ func generate(raw []byte) (string, error) {
 				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", path, err)
 			}
 
-			stringData[key] = string(data)
+			stringData[key] = base64.StdEncoding.EncodeToString(data)
 		}
 
 		for _, file := range secretFrom.Envs {
@@ -179,7 +180,7 @@ func generate(raw []byte) (string, error) {
 				return "", fmt.Errorf("error unmarshalling .env file %q: %w", file, err)
 			}
 			for k, v := range env {
-				stringData[k] = v
+				stringData[k] = base64.StdEncoding.EncodeToString([]byte(v))
 			}
 		}
 
@@ -188,7 +189,7 @@ func generate(raw []byte) (string, error) {
 			Kind:       "Secret",
 			Metadata:   secretFrom.Metadata,
 			Type:       secretFrom.Type,
-			StringData: stringData,
+			Data:       stringData,
 		}
 		d, err := yaml.Marshal(&s)
 		if err != nil {

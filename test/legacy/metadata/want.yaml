@@ -1,4 +1,7 @@
 apiVersion: v1
+data:
+  password: MWYyZDFlMmU2N2Rm
+  username: YWRtaW4=
 kind: Secret
 metadata:
   annotations:
@@ -7,6 +10,3 @@ metadata:
     foo: bar
   name: mysecret
   namespace: test
-stringData:
-  password: 1f2d1e2e67df
-  username: admin
