@@ -96,6 +96,10 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			dir:  "test/krm/file",
 		},
 		{
+			name: "KRM From Binary File",
+			dir:  "test/krm/binaryfile",
+		},
+		{
 			name: "KRM From Envs",
 			dir:  "test/krm/envs",
 		},
