@@ -200,7 +200,32 @@ https://github.com/viaduct-ai/kustomize-sops/issues
 `KSOPS` can also generate a Kubernetes Secret directly from encrypted files or dotenv files.
 
 ```bash
-# Create a Kubernetes Secret from encrypted file
+# Create a Kubernetes Secret from encrypted binary file
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: example-secret-generator
+  annotations:
+    config.kubernetes.io/function: |
+        exec:
+          path: ksops
+secretFrom:
+- metadata:
+    name: secret-name
+    labels:
+      app: foo
+    annotations:
+      kustomize.config.k8s.io/needs-hash: "false"
+  type: Opaque
+  binaryFiles:
+  - ./secret.enc
+  - secret=./secret.enc
+EOF
+```
+
+```bash
+# Create a Kubernetes Secret from encrypted text-based file
 cat <<EOF > secret-generator.yaml
 apiVersion: viaduct.ai/v1
 kind: ksops
