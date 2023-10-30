@@ -64,6 +64,10 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			dir:  "test/legacy/file",
 		},
 		{
+			name: "Legacy From Binary File",
+			dir:  "test/legacy/binaryfile",
+		},
+		{
 			name: "Legacy From Envs",
 			dir:  "test/legacy/envs",
 		},
