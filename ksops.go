@@ -10,6 +10,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -29,14 +30,16 @@ type kubernetesSecret struct {
 	Kind       string            `json:"kind" yaml:"kind"`
 	Metadata   types.ObjectMeta  `json:"metadata" yaml:"metadata"`
 	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
-	StringData map[string]string `json:"stringData" yaml:"stringData"`
+	StringData map[string]string `json:"stringData,omitempty" yaml:"stringData,omitempty"`
+	Data       map[string]string `json:"data,omitempty" yaml:"data,omitempty"`
 }
 
 type secretFrom struct {
-	Files    []string         `json:"files,omitempty" yaml:"files,omitempty"`
-	Envs     []string         `json:"envs,omitempty" yaml:"envs,omitempty"`
-	Metadata types.ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
-	Type     string           `json:"type,omitempty" yaml:"type,omitempty"`
+	Files       []string         `json:"files,omitempty" yaml:"files,omitempty"`
+	BinaryFiles []string         `json:"binaryFiles,omitempty" yaml:"binaryFiles,omitempty"`
+	Envs        []string         `json:"envs,omitempty" yaml:"envs,omitempty"`
+	Metadata    types.ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Type        string           `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
 type ksops struct {
@@ -157,6 +160,7 @@ func generate(raw []byte) (string, error) {
 
 	for i, secretFrom := range manifest.SecretFrom {
 		stringData := make(map[string]string)
+		binaryData := make(map[string]string)
 
 		for _, file := range secretFrom.Files {
 			key, path := fileKeyPath(file)
@@ -166,6 +170,16 @@ func generate(raw []byte) (string, error) {
 			}
 
 			stringData[key] = string(data)
+		}
+
+		for _, file := range secretFrom.BinaryFiles {
+			key, path := fileKeyPath(file)
+			data, err := decryptFile(path)
+			if err != nil {
+				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", path, err)
+			}
+
+			binaryData[key] = base64.StdEncoding.EncodeToString(data)
 		}
 
 		for _, file := range secretFrom.Envs {
@@ -189,6 +203,7 @@ func generate(raw []byte) (string, error) {
 			Metadata:   secretFrom.Metadata,
 			Type:       secretFrom.Type,
 			StringData: stringData,
+			Data:       binaryData,
 		}
 		d, err := yaml.Marshal(&s)
 		if err != nil {

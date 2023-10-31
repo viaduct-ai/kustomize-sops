@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  secret.enc.yaml: dXNlcm5hbWU6IGFkbWluCnBhc3N3b3JkOiAxZjJkMWUyZTY3ZGYK
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
