@@ -1,6 +1,6 @@
 module github.com/viaduct-ai/kustomize-sops
 
-go 1.19
+go 1.21
 
 require (
 	github.com/getsops/sops/v3 v3.8.1
