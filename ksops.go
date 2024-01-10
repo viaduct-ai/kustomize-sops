@@ -63,7 +63,7 @@ func help() {
 	os.Exit(1)
 }
 
-// main executes KOSPS as an exec plugin
+// main executes KSOPS as an exec plugin
 func main() {
 	nargs := len(os.Args)
 	if !(nargs == 1 || nargs == 2) {
