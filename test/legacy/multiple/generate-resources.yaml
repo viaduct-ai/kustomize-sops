@@ -6,3 +6,9 @@ files:
   - ./secret-A.enc.yaml
   - ./secret-B.enc.yaml
   - ./secret-C.enc.yaml
+secretFrom:
+  - metadata:
+      name: mysecret
+    type: Opaque
+    binaryFiles:
+      - ./secret.enc.yaml
