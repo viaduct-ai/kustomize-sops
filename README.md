@@ -451,7 +451,7 @@ cat age.agekey | oc create secret generic sops-age --namespace=openshift-operato
     - name: XDG_CONFIG_HOME
       value: /.config
     - name: SOPS_AGE_KEY_FILE
-      value: /.config/sops/age/key.txt
+      value: /.config/sops/age/keys.txt
     initContainers:
     - args:
       - echo "Installing KSOPS..."; mv ksops /custom-tools/; mv kustomize /custom-tools/;
