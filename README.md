@@ -487,7 +487,7 @@ cat age.agekey | oc create secret generic sops-age --namespace=openshift-operato
 sops --encrypt --in-place secret.sops.yaml
 ```
 
-5. Point to your secret:
+5. Point to your encrypted secret(s):
 
 ```yaml
 apiVersion: viaduct.ai/v1
