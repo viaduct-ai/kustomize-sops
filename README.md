@@ -430,7 +430,7 @@ spec:
 1. Install the [Age tool](https://github.com/FiloSottile/age#installation) and run the below command to generate a new key:
 
 ```bash
-$ age-keygen -o age.agekey
+age-keygen -o age.agekey
 ```
 
 2. Create a secret in the namespace where your ArgoCD-instance is running:
