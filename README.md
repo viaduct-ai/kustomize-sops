@@ -425,6 +425,97 @@ spec:
         #        key: secretkey
 ```
 
+### ArgoCD/GitOps Operator w/ KSOPS/agekey in OKD4/OCP4
+
+1. Install the [Age tool](https://github.com/FiloSottile/age#installation) and run the below command to generate a new key:
+
+```bash
+age-keygen -o age.agekey
+```
+
+2. Create a secret in the namespace where your ArgoCD-instance is running:
+
+```bash
+cat age.agekey | oc create secret generic sops-age --namespace=openshift-operators \
+--from-file=keys.txt=/dev/stdin
+```
+
+3. Add the following in your ArgoCD-CRD:
+
+`kind: ArgoCD`:
+
+```yaml
+  kustomizeBuildOptions: --enable-alpha-plugins --enable-exec
+  repo:
+    env:
+    - name: XDG_CONFIG_HOME
+      value: /.config
+    - name: SOPS_AGE_KEY_FILE
+      value: /.config/sops/age/keys.txt
+    initContainers:
+    - args:
+      - echo "Installing KSOPS..."; mv ksops /custom-tools/; mv kustomize /custom-tools/;
+        echo "Done.";
+      command:
+      - /bin/sh
+      - -c
+      image: viaductoss/ksops:v4.3.1
+      name: install-ksops
+      volumeMounts:
+      - mountPath: /custom-tools
+        name: custom-tools
+    volumeMounts:
+    - mountPath: /usr/local/bin/kustomize
+      name: custom-tools
+      subPath: kustomize
+    - mountPath: /usr/local/bin/ksops
+      name: custom-tools
+      subPath: ksops
+    - mountPath: /.config/sops/age
+      name: sops-age
+    volumes:
+    - emptyDir: {}
+      name: custom-tools
+    - name: sops-age
+      secret:
+
+```
+
+4. Encrypt your secrets with [sops](https://github.com/getsops/sops/releases) and commit it to your repository: (all changes to the secret after encryption will give data integrity errors, so re-encrypt if you want to add stuff!)
+
+```bash
+sops --encrypt --in-place secret.sops.yaml
+```
+
+5. Point to your encrypted secret(s):
+
+```yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  # Specify a name
+  name: example-secret-generator
+  annotations:
+    config.kubernetes.io/function: |
+      exec:
+        path: ksops
+files:
+  - secret.sops.yaml
+```
+
+6. Test locally if your setup works(`sops`/`ksops`/`kustomize` binaries are required):
+
+```bash
+kustomize build --enable-alpha-plugins --enable-exec| oc diff -f -
+```
+
+```bash
+cp age.agekey ~/.config/sops/age/keys.txt
+sops --decrypt secret.sops.yaml
+```
+
+7. Test to rollout your encrypted Secret w/ ArgoCD
+
 ### Custom Argo CD w/ KSOPS Dockerfile
 
 Alternatively, for more control and faster pod start times you can build a custom docker image.
