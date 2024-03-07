@@ -17,3 +17,15 @@ updates:
     versions:
     - 0.8.1
     - 0.8.4
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+  reviewers:
+  - devstein
+  assignees:
+  - devstein
+  labels:
+  - dependencies
+  - please code review
