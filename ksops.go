@@ -38,6 +38,7 @@ type secretFrom struct {
 	Files       []string         `json:"files,omitempty" yaml:"files,omitempty"`
 	BinaryFiles []string         `json:"binaryFiles,omitempty" yaml:"binaryFiles,omitempty"`
 	Envs        []string         `json:"envs,omitempty" yaml:"envs,omitempty"`
+	Literals    []string         `json:"literals,omitempty" yaml:"literals,omitempty"`
 	Metadata    types.ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 	Type        string           `json:"type,omitempty" yaml:"type,omitempty"`
 }
@@ -197,6 +198,11 @@ func generate(raw []byte) (string, error) {
 			}
 		}
 
+		for _, literal := range secretFrom.Literals {
+			k, v := parseLiteral(literal)
+			stringData[k] = v
+		}
+
 		s := kubernetesSecret{
 			APIVersion: "v1",
 			Kind:       "Secret",
@@ -242,4 +248,13 @@ func fileKeyPath(file string) (string, string) {
 		os.Exit(1)
 	}
 	return slices[0], slices[1]
+}
+
+func parseLiteral(literal string) (string, string) {
+	k, v, found := strings.Cut(literal, "=")
+	if !found {
+		fmt.Fprintf(os.Stderr, "error parsing literal %s", literal)
+		os.Exit(1)
+	}
+	return k, v
 }
