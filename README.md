@@ -558,8 +558,8 @@ We can setup `KSOPS` custom tooling in the [Argo CD Chart](https://github.com/ar
 
 ```yaml
 # Enable Kustomize Alpha Plugins via Argo CD ConfigMap, required for ksops
-server:
-  config:
+configs:
+  cm:
     kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
 
 repoServer:
