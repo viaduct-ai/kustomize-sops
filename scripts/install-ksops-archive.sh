@@ -3,6 +3,10 @@ set -e
 
 PLUGIN_PATH="/usr/local/bin/"
 
+if [ -n "$1" ]; then
+  PLUGIN_PATH="$1"
+fi
+
 if [[ ! -d "$PLUGIN_PATH" ]]; then
   echo "$PLUGIN_PATH does not exist. Cannot add ksops to PATH."
 fi
