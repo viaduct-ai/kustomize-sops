@@ -10,6 +10,10 @@ env:
   GO111MODULE: on
   GOPROXY: https://proxy.golang.org
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
