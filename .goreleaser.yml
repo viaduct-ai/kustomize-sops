@@ -1,6 +1,7 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
 project_name: ksops
+version: 2
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -32,15 +33,15 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 
 release:
   github:
@@ -48,9 +49,8 @@ release:
     name: kustomize-sops
 
 dockers:
-
   - use: buildx
-  # Templates of the Docker image names.
+    # Templates of the Docker image names.
     image_templates:
       - "viaductoss/{{ .ProjectName }}:latest-amd64"
       - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
@@ -87,7 +87,7 @@ dockers:
       - .git/
 
   - use: buildx
-  # Templates of the Docker image names.
+    # Templates of the Docker image names.
     image_templates:
       - "viaductoss/{{ .ProjectName }}:latest-arm64"
       - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
@@ -104,7 +104,6 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--platform=linux/arm64"
-
 
     # If your Dockerfile copies files other than the binary itself,
     # you should list them here as well.
@@ -125,34 +124,32 @@ dockers:
       - .git/
 
 docker_manifests:
-- name_template: "viaductoss/{{ .ProjectName }}:latest"
-  image_templates:
-  - "viaductoss/{{ .ProjectName }}:latest-amd64"
-  - "viaductoss/{{ .ProjectName }}:latest-arm64"
+  - name_template: "viaductoss/{{ .ProjectName }}:latest"
+    image_templates:
+      - "viaductoss/{{ .ProjectName }}:latest-amd64"
+      - "viaductoss/{{ .ProjectName }}:latest-arm64"
 
-- name_template: "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
-  image_templates:
-  - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
-  - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "viaductoss/{{ .ProjectName }}:{{ .Tag }}"
+    image_templates:
+      - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
 
+  - name_template: "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
+    image_templates:
+      - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
+      - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
 
-- name_template: "viaductoss/{{ .ProjectName }}:v{{ .Major }}"
-  image_templates:
-  - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
-  - "viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
+  - name_template: "quay.io/viaductoss/{{ .ProjectName }}:latest"
+    image_templates:
+      - "quay.io/viaductoss/{{ .ProjectName }}:latest-amd64"
+      - "quay.io/viaductoss/{{ .ProjectName }}:latest-arm64"
 
-- name_template: "quay.io/viaductoss/{{ .ProjectName }}:latest"
-  image_templates:
-  - "quay.io/viaductoss/{{ .ProjectName }}:latest-amd64"
-  - "quay.io/viaductoss/{{ .ProjectName }}:latest-arm64"
+  - name_template: "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}"
+    image_templates:
+      - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
 
-- name_template: "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}"
-  image_templates:
-  - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-amd64"
-  - "quay.io/viaductoss/{{ .ProjectName }}:{{ .Tag }}-arm64"
-
-
-- name_template: "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}"
-  image_templates:
-  - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
-  - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
+  - name_template: "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}"
+    image_templates:
+      - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-amd64"
+      - "quay.io/viaductoss/{{ .ProjectName }}:v{{ .Major }}-arm64"
