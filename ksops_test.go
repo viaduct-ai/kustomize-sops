@@ -5,7 +5,7 @@ package main_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"os/exec"
 	"path"
 	"strings"
@@ -13,7 +13,7 @@ import (
 )
 
 func runKSOPSPluginIntegrationTest(t *testing.T, testDir string, kustomizeVersion string) {
-	want, err := ioutil.ReadFile(path.Join(testDir, "want.yaml"))
+	want, err := os.ReadFile(path.Join(testDir, "want.yaml"))
 	if err != nil {
 		t.Fatalf("error readding expected resources file %s: %v", path.Join(testDir, "want.yaml"), err)
 	}
@@ -33,7 +33,7 @@ func runKSOPSPluginIntegrationTest(t *testing.T, testDir string, kustomizeVersio
 	cmd.Run()
 
 	got := out.Bytes()
-	if bytes.Compare(want, got) != 0 {
+	if !bytes.Equal(want, got) {
 		t.Errorf("wanted %s. got %s", want, got)
 	}
 }

@@ -33,6 +33,7 @@ sops:
 download-dependencies:
 	go mod download
 	go mod tidy
+	go install honnef.co/go/tools/cmd/staticcheck@latest
 
 .PHONY: setup
 setup: .git/hooks/pre-push .git/hooks/pre-commit kustomize sops download-dependencies
@@ -65,21 +66,9 @@ go-vet:
 	go vet -v ./...
 
 
-# https://vincent.bernat.ch/en/blog/2019-makefile-build-golang
-BIN = $(CURDIR)/bin
-$(BIN):
-		@mkdir -p $@
-$(BIN)/%: | $(BIN)
-		@tmp=$$(mktemp -d); \
-       env GO111MODULE=off GOPATH=$$tmp GOBIN=$(BIN) go get $(PACKAGE) \
-        || ret=$$?; \
-       rm -rf $$tmp ; exit $$ret
-
-$(BIN)/golint: PACKAGE=golang.org/x/lint/golint
-
-GOLINT = $(BIN)/golint
-lint: | $(GOLINT)
-		$(GOLINT) -set_exit_status ./...
+.PHONY: lint
+lint:
+		staticcheck
 
 
 ################################################################################

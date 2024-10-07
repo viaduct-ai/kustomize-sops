@@ -12,7 +12,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -91,7 +90,7 @@ func main() {
 
 	// ignore the first file name argument
 	// load the second argument, the file path
-	manifest, err := ioutil.ReadFile(os.Args[1])
+	manifest, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "unable to read in manifest: %s", os.Args[1])
 		os.Exit(1)
@@ -220,7 +219,7 @@ func generate(raw []byte) (string, error) {
 }
 
 func decryptFile(file string) ([]byte, error) {
-	b, err := ioutil.ReadFile(file)
+	b, err := os.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("error reading %q: %w", file, err)
 	}
