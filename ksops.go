@@ -142,22 +142,18 @@ func generate(raw []byte) (string, error) {
 		return "", fmt.Errorf("missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", raw)
 	}
 
-	var output bytes.Buffer
+	var documents [][]byte
 
-	for i, file := range manifest.Files {
+	for _, file := range manifest.Files {
 		data, err := decryptFile(file)
 		if err != nil {
 			return "", fmt.Errorf("error decrypting file %q from manifest.Files: %w", file, err)
 		}
 
-		output.Write(data)
-		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
-		if i < (len(manifest.Files)+len(manifest.SecretFrom))-1 {
-			output.WriteString("\n---\n")
-		}
+		documents = append(documents, data)
 	}
 
-	for i, secretFrom := range manifest.SecretFrom {
+	for _, secretFrom := range manifest.SecretFrom {
 		stringData := make(map[string]string)
 		binaryData := make(map[string]string)
 
@@ -208,10 +204,15 @@ func generate(raw []byte) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("error marshalling manifest: %w", err)
 		}
-		output.WriteString(string(d))
-		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
-		if i < len(manifest.SecretFrom)-1 {
-			output.WriteString("---\n")
+		documents = append(documents, d)
+	}
+
+	var output bytes.Buffer
+	for i, doc := range documents {
+		output.Write(doc)
+		// Note that KRM treats will try parse (and fail) empty documents if there is a trailing separator
+		if i != len(documents)-1 {
+			output.WriteString("\n---\n")
 		}
 	}
 
