@@ -2,8 +2,6 @@ module github.com/viaduct-ai/kustomize-sops
 
 go 1.22.7
 
-toolchain go1.23.2
-
 require (
 	github.com/getsops/sops/v3 v3.9.2
 	github.com/joho/godotenv v1.5.1
