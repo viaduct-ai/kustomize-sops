@@ -14,17 +14,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        go: [1.21]
-    name: ${{ matrix.os }} @ Go ${{ matrix.go }}
+    name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Go ${{ matrix.go }}
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version-file: go.mod
 
       - name: Set GOPATH and PATH
         run: |
