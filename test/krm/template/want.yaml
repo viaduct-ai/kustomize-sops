@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+stringData:
+  config.yaml: |
+    cleartext_field: "foo"
+    user: "admin"
+    pass: "1f2d1e2e67df"
+    role: "foo-bar"
+type: Opaque
