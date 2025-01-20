@@ -3,56 +3,51 @@ ARG GO_VERSION="1.23.5"
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
 #--------------------------------------------#
+FROM --platform=${BUILDPLATFORM} golang:${GO_VERSION} AS base
+RUN apt update && apt install git make -y
+COPY go.* .
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
+COPY . .
+
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.6.1@sha256:923441d7c25f1e2eb5789f82d987693c47b8ed987c4ab3b075d6ed2b5d6779a3 AS xx
 
 # Stage 1: Build KSOPS and Kustomize
-FROM golang:$GO_VERSION AS builder
-
-ARG TARGETPLATFORM
-ARG PKG_NAME=ksops
+FROM --platform=${BUILDPLATFORM} base AS builder
+ARG TARGETPLATFORM \
+    TARGETARCH \
+    PKG_NAME=ksops
+COPY --link --from=xx / /
 
 # Match Argo CD's build
-ENV GO111MODULE=on
-ENV CGO_ENABLED=0
+ENV GO111MODULE=on \
+    CGO_ENABLED=0
 
 # Define kustomize config location
+ENV HOME=/root
 ENV XDG_CONFIG_HOME=$HOME/.config
 
-# Export templated Go env variables
-RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) && \
-    export GOARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) && \
-    export GOARM=$(echo ${TARGETPLATFORM} | cut -d / -f3 | cut -c2-)
-
-WORKDIR /go/src/github.com/viaduct-ai/kustomize-sops
-
-COPY . .
-RUN go mod download
-RUN make install
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    xx-go --wrap && \
+    make install && \
+    xx-verify --static /go/bin/ksops && \
+    xx-verify --static /go/bin/kustomize-sops
 RUN make kustomize
 
 # # Stage 2: Final image
-FROM debian:bullseye-slim
-
+FROM --platform=${BUILDPLATFORM} gcr.io/distroless/base AS runtime
 LABEL org.opencontainers.image.source="https://github.com/viaduct-ai/kustomize-sops"
 
-# ca-certs and git could be required if kustomize remote-refs are used
-RUN apt update -y \
-    && apt install -y git ca-certificates \
-    && apt clean -y && rm -rf /var/lib/apt/lists/*
+USER nonroot
 
-# Copy only necessary files from the builder stage
-COPY --from=builder /go/bin/ksops /usr/local/bin/ksops
-COPY --from=builder /go/bin/kustomize /usr/local/bin/kustomize
-COPY --from=builder /go/bin/kustomize-sops /usr/local/bin/kustomize-sops
-
-# Create a symlink from /usr/local/bin/ksops to /go/bin/ksops to preserve backwards compatibility (this will be removed in a future release)
-RUN mkdir -p /go/bin
-RUN ln -s /usr/local/bin/ksops /go/bin/ksops
-RUN ln -s /usr/local/bin/kustomize /go/bin/kustomize
-RUN ln -s /usr/local/bin/kustomize-sops /go/bin/kustomize-sops
-# Set GOPATH to /go to preserve backwards compatibility (this will be removed in a future release)
-ENV GOPATH=/go
-
-# Change working directory to /usr/local/bin
 WORKDIR /usr/local/bin
 
 CMD ["kustomize", "version"]
+
+COPY --link --from=builder --chown=root:root --chmod=755 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --link --from=base --chown=root:root --chmod=755 /usr/bin/git /usr/bin/git
+
+# Copy only necessary files from the builder stage
+COPY --link --from=builder --chown=root:root --chmod=755 /go/bin/ksops /usr/local/bin/ksops
+COPY --link --from=builder --chown=root:root --chmod=755 /go/bin/kustomize /usr/local/bin/kustomize
+COPY --link --from=builder --chown=root:root --chmod=755 /go/bin/kustomize-sops /usr/local/bin/kustomize-sops
