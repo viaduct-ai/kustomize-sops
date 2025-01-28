@@ -80,7 +80,7 @@ func main() {
 		}
 		err := fn.AsMain(fn.ResourceListProcessorFunc(krm))
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "unable to generate manifests: %v", err)
+			fmt.Fprintf(os.Stderr, "unable to generate manifests: %v\n", err)
 			os.Exit(1)
 		}
 		return
@@ -92,13 +92,13 @@ func main() {
 	// load the second argument, the file path
 	manifest, err := os.ReadFile(os.Args[1])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "unable to read in manifest: %s", os.Args[1])
+		fmt.Fprintf(os.Stderr, "unable to read in manifest: %s\n", os.Args[1])
 		os.Exit(1)
 	}
 
 	result, err := generate(manifest)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "unable to generate manifests: %v", err)
+		fmt.Fprintf(os.Stderr, "unable to generate manifests: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -237,7 +237,7 @@ func fileKeyPath(file string) (string, string) {
 	if len(slices) == 1 {
 		return filepath.Base(file), file
 	} else if len(slices) > 2 {
-		fmt.Fprintf(os.Stderr, "invalid format in file generator %s", file)
+		fmt.Fprintf(os.Stderr, "invalid format in file generator %s\n", file)
 		os.Exit(1)
 	}
 	return slices[0], slices[1]
