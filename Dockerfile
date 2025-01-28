@@ -29,10 +29,13 @@ ENV XDG_CONFIG_HOME=$HOME/.config
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     xx-go --wrap && \
+    make prereqs && \
+    xx-verify /go/bin/kustomize
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    xx-go --wrap && \
     make install && \
-    xx-verify --static /go/bin/ksops && \
-    xx-verify --static /go/bin/kustomize-sops
-RUN make kustomize
+    xx-verify --static /go/bin/ksops
 
 # # Stage 2: Final image
 FROM --platform=${BUILDPLATFORM} gcr.io/distroless/base AS runtime
@@ -49,5 +52,5 @@ COPY --link --from=base --chown=root:root --chmod=755 /usr/bin/git /usr/bin/git
 
 # Copy only necessary files from the builder stage
 COPY --link --from=builder --chown=root:root --chmod=755 /go/bin/ksops /usr/local/bin/ksops
+COPY --link --from=builder --chown=root:root --chmod=755 /go/bin/ksops /usr/local/bin/kustomize-sops
 COPY --link --from=builder --chown=root:root --chmod=755 /go/bin/kustomize /usr/local/bin/kustomize
-COPY --link --from=builder --chown=root:root --chmod=755 /go/bin/kustomize-sops /usr/local/bin/kustomize-sops
