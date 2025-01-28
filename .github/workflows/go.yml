@@ -32,24 +32,30 @@ jobs:
           echo "$(dirname $GITHUB_WORKSPACE)/bin" >> $GITHUB_PATH
         shell: bash
 
-      - name: Install dependencies
-        run: |
-          make download-dependencies
-      - name: Lint
-        run: |
-          make lint
-      - name: Run gofmt
-        run: |
-          diff -u <(echo -n) <(gofmt -d -e .)
-      - name: Run go vet
-        run: |
-          make go-vet
-      - name: Build plugin
-        run: |
-          make build
-      - name: Test
+      - name: Install pre-requisites
         run: |
           # Github now comes with kustomize already installed
           sudo rm $(command -v kustomize) || true
-          make kustomize
-          XDG_CONFIG_HOME=$HOME/.config make test
+          make prereqs
+
+      - name: Install dependencies
+        run: make deps
+
+      - name: Lint
+        run: make lint
+
+      - name: Run gofmt
+        run: |
+          diff -u <(echo -n) <(gofmt -d -e .)
+
+      - name: Run go vet
+        run: make vet
+
+      - name: Build plugin
+        run: make build
+
+      - name: Install
+        run: make install
+
+      - name: Test
+        run: XDG_CONFIG_HOME=$HOME/.config make test

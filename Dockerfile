@@ -27,7 +27,7 @@ WORKDIR /go/src/github.com/viaduct-ai/kustomize-sops
 COPY . .
 RUN go mod download
 RUN make install
-RUN make kustomize
+RUN make /go/bin/kustomize
 
 # # Stage 2: Final image
 FROM debian:bullseye-slim
