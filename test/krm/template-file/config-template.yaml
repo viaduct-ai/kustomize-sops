@@ -1,0 +1,4 @@
+cleartext_field: "foo"
+user: "{{ .username }}"
+pass: "{{ .password }}"
+role: "{{ .role }}"
