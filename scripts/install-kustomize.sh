@@ -19,10 +19,11 @@ function install_kustomize() {
   GO111MODULE=on go install -ldflags "${LDFLAGS}" sigs.k8s.io/kustomize/kustomize/$KUSTOMIZE_MAJOR_VERSION@$KUSTOMIZE_VERSION
 
   # Print the go binary path
-  GO_BIN=$(go env GOPATH)/bin
-  echo "kustomize installed at $GO_BIN/$KUSTOMIZE"
-
-  kustomize version
+  GO_PATH=$(go env GOPATH)
+  KUSTOMIZE_PATH="$GO_PATH/bin/$KUSTOMIZE"
+  echo "kustomize installed at $KUSTOMIZE_PATH"
+  
+  $KUSTOMIZE_PATH version
 }
 
 if [ -x "$(command -v $KUSTOMIZE)" ]; then
