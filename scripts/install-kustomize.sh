@@ -18,7 +18,10 @@ function install_kustomize() {
   LDFLAGS+=" -X sigs.k8s.io/kustomize/api/provenance.version=${KUSTOMIZE_VERSION}+ksops.${KSOPS_VERSION}"
   GO111MODULE=on go install -ldflags "${LDFLAGS}" sigs.k8s.io/kustomize/kustomize/$KUSTOMIZE_MAJOR_VERSION@$KUSTOMIZE_VERSION
 
-  echo "Successfully installed $KUSTOMIZE!"
+  # Print the go binary path
+  GO_BIN=$(go env GOPATH)/bin
+  echo "kustomize installed at $GO_BIN/$KUSTOMIZE"
+
   kustomize version
 }
 

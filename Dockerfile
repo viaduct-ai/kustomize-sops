@@ -25,6 +25,8 @@ ENV GO111MODULE=on \
 # Define kustomize config location
 ENV HOME=/root
 ENV XDG_CONFIG_HOME=$HOME/.config
+# Add /go/bin to PATH
+ENV PATH=$PATH:/go/bin
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
