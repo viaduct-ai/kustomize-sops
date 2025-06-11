@@ -1,0 +1,23 @@
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: ksops-secret-from-generator
+  annotations:
+    config.kubernetes.io/function: |
+        exec:
+          # if the binary is your PATH, you can do 
+          path: ksops
+          # otherwise, path should be relative to manifest files, like
+          # path: ../../../ksops
+secretFromTemplate:
+- template:
+    metadata:
+      name: mysecret
+    type: Opaque
+    files:
+    - config.yaml=./config-template.yaml
+  vars:
+    files:
+    - role=./secret.enc.txt
+    envs:
+    - ./secret.enc.env
