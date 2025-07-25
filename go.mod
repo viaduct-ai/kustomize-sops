@@ -6,7 +6,7 @@ require (
 	github.com/getsops/sops/v3 v3.9.2
 	github.com/joho/godotenv v1.5.1
 	sigs.k8s.io/kustomize/api v0.19.0
-	sigs.k8s.io/yaml v1.5.0
+	sigs.k8s.io/yaml v1.6.0
 )
 
 require github.com/GoogleContainerTools/kpt-functions-sdk/go/fn v0.0.0-20221109010843-1f7d0c07a381
