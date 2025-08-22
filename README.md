@@ -381,48 +381,59 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: argocd-repo-server
+  namespace: argocd
 spec:
   template:
     spec:
-      # 1. Define an emptyDir volume which will hold the custom binaries
+      dnsPolicy: ClusterFirst
       volumes:
         - name: custom-tools
           emptyDir: {}
-      # 2. Use an init container to download/copy custom binaries into the emptyDir
+
       initContainers:
         - name: install-ksops
-          image: viaductoss/ksops:v4.4.0
+          image: viaductoss/ksops:v4
           command: ["/bin/sh", "-c"]
           args:
-            - echo "Installing KSOPS...";
-              mv ksops /custom-tools/;
-              mv kustomize /custom-tools/;
+            - |
+              echo "Installing KSOPS and Kustomize...";
+              cp /usr/local/bin/ksops /custom-tools/ksops;
+              cp /usr/local/bin/kustomize /custom-tools/kustomize;
+              chmod +x /custom-tools/ksops /custom-tools/kustomize;
               echo "Done.";
           volumeMounts:
-            - mountPath: /custom-tools
-              name: custom-tools
-      # 3. Volume mount the custom binary to the bin directory (overriding the existing version)
+            - name: custom-tools
+              mountPath: /custom-tools
+
       containers:
-        - name: argocd-repo-server
+        - name: repo-server
+          env:
+            - name: XDG_CONFIG_HOME
+              value: /.config
+            - name: KUSTOMIZE_PLUGIN_HOME
+              value: /.config/kustomize/plugin
+            - name: KUSTOMIZE_PLUGIN_LOADERS
+              value: exec
           volumeMounts:
-            - mountPath: /usr/local/bin/kustomize
-              name: custom-tools
+            - name: custom-tools
+              mountPath: /usr/local/bin/kustomize
               subPath: kustomize
-            - mountPath: /usr/local/bin/ksops
-              name: custom-tools
+            - name: custom-tools
+              mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
               subPath: ksops
-        ## If you use AWS or GCP KMS, don't forget to include the necessary credentials to decrypt the secrets!
-        # env:
-        #  - name: AWS_ACCESS_KEY_ID
-        #    valueFrom:
-        #      secretKeyRef:
-        #        name: argocd-aws-credentials
-        #        key: accesskey
-        #  - name: AWS_SECRET_ACCESS_KEY
-        #    valueFrom:
-        #      secretKeyRef:
-        #        name: argocd-aws-credentials
-        #        key: secretkey
+
+          # Optional: Include these if using KMS secrets
+          # - name: AWS_ACCESS_KEY_ID
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: argocd-aws-credentials
+          #       key: accesskey
+          # - name: AWS_SECRET_ACCESS_KEY
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: argocd-aws-credentials
+          #       key: secretkey
+
 ```
 
 ### ArgoCD/GitOps Operator w/ KSOPS/agekey in OKD4/OCP4
