@@ -12,16 +12,16 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/getsops/sops/v3/cmd/sops/formats"
 	"github.com/getsops/sops/v3/decrypt"
 	"github.com/joho/godotenv"
+	"os"
+	"path/filepath"
 	"sigs.k8s.io/kustomize/api/types"
 	"sigs.k8s.io/yaml"
+	"strings"
+	"text/template"
 )
 
 type kubernetesSecret struct {
@@ -41,9 +41,28 @@ type secretFrom struct {
 	Type        string           `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
+type templateDef struct {
+	Metadata   types.ObjectMeta  `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
+	StringData map[string]string `json:"stringData,omitempty" yaml:"stringData,omitempty"`
+	Data       map[string]string `json:"data,omitempty" yaml:"data,omitempty"`
+	Files      []string          `json:"files,omitempty" yaml:"files,omitempty"`
+}
+
+type templateVars struct {
+	Files []string `json:"files,omitempty" yaml:"files,omitempty"`
+	Envs  []string `json:"envs,omitempty" yaml:"envs,omitempty"`
+}
+
+type secretFromTemplate struct {
+	Template templateDef  `json:"template,omitempty" yaml:"template,omitempty"`
+	Vars     templateVars `json:"vars,omitempty" yaml:"vars,omitempty"`
+}
+
 type ksops struct {
-	Files      []string     `json:"files,omitempty" yaml:"files,omitempty"`
-	SecretFrom []secretFrom `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
+	Files              []string             `json:"files,omitempty" yaml:"files,omitempty"`
+	SecretFrom         []secretFrom         `json:"secretFrom,omitempty" yaml:"secretFrom,omitempty"`
+	SecretFromTemplate []secretFromTemplate `json:"secretFromTemplate,omitempty" yaml:"secretFromTemplate,omitempty"`
 }
 
 func help() {
@@ -138,26 +157,22 @@ func generate(raw []byte) (string, error) {
 		return "", fmt.Errorf("error unmarshalling manifest content: %q \n%s", err, raw)
 	}
 
-	if manifest.Files == nil && manifest.SecretFrom == nil {
-		return "", fmt.Errorf("missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", raw)
+	if manifest.Files == nil && manifest.SecretFrom == nil && manifest.SecretFromTemplate == nil {
+		return "", fmt.Errorf("missing the required 'files', 'secretFrom', or 'secretFromTemplate' key in the ksops manifests: %s", raw)
 	}
 
-	var output bytes.Buffer
+	var documents [][]byte
 
-	for i, file := range manifest.Files {
+	for _, file := range manifest.Files {
 		data, err := decryptFile(file)
 		if err != nil {
 			return "", fmt.Errorf("error decrypting file %q from manifest.Files: %w", file, err)
 		}
 
-		output.Write(data)
-		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
-		if i < (len(manifest.Files)+len(manifest.SecretFrom))-1 {
-			output.WriteString("\n---\n")
-		}
+		documents = append(documents, data)
 	}
 
-	for i, secretFrom := range manifest.SecretFrom {
+	for _, secretFrom := range manifest.SecretFrom {
 		stringData := make(map[string]string)
 		binaryData := make(map[string]string)
 
@@ -208,14 +223,104 @@ func generate(raw []byte) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("error marshalling manifest: %w", err)
 		}
-		output.WriteString(string(d))
-		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
-		if i < len(manifest.SecretFrom)-1 {
-			output.WriteString("---\n")
+		documents = append(documents, d)
+	}
+
+	for _, secretFrom := range manifest.SecretFromTemplate {
+		// Read template
+		if secretFrom.Template.StringData == nil {
+			secretFrom.Template.StringData = make(map[string]string)
+		}
+		for _, file := range secretFrom.Template.Files {
+			key, path := fileKeyPath(file)
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return "", fmt.Errorf("error reading file %q from secretFrom.template.files: %w", path, err)
+			}
+			secretFrom.Template.StringData[key] = string(data)
+		}
+
+		// Read variables
+		vars := make(map[string]string)
+		for _, file := range secretFrom.Vars.Files {
+			key, path := fileKeyPath(file)
+			data, err := decryptFile(path)
+			if err != nil {
+				return "", fmt.Errorf("error decrypting file %q from secretFromTemplate.vars.files: %w", path, err)
+			}
+
+			vars[key] = string(data)
+		}
+		for _, file := range secretFrom.Vars.Envs {
+			data, err := decryptFile(file)
+			if err != nil {
+				return "", fmt.Errorf("error decrypting file %q from secretFromTemplate.vars.envs: %w", file, err)
+			}
+
+			env, err := godotenv.Unmarshal(string(data))
+			if err != nil {
+				return "", fmt.Errorf("error unmarshalling .env file %q: %w", file, err)
+			}
+			for k, v := range env {
+				vars[k] = v
+			}
+		}
+
+		// Template stringData and data fields
+		stringData := make(map[string]string, len(secretFrom.Template.StringData))
+		binaryData := make(map[string]string, len(secretFrom.Template.Data))
+		for k, v := range secretFrom.Template.StringData {
+			stringData[k], err = execTemplate(v, vars)
+			if err != nil {
+				return "", fmt.Errorf("error templating from secretFromTemplate.template.stringData.%v: %w", k, err)
+			}
+		}
+		for k, v := range secretFrom.Template.Data {
+			binaryData[k], err = execTemplate(v, vars)
+			if err != nil {
+				return "", fmt.Errorf("error executing template from secretFrom.template.data.%v: %w", k, err)
+			}
+		}
+
+		// Construct secret document
+		s := kubernetesSecret{
+			APIVersion: "v1",
+			Kind:       "Secret",
+			Metadata:   secretFrom.Template.Metadata,
+			Type:       secretFrom.Template.Type,
+			StringData: stringData,
+			Data:       binaryData,
+		}
+		d, err := yaml.Marshal(&s)
+		if err != nil {
+			return "", fmt.Errorf("error marshalling manifest: %w", err)
+		}
+		documents = append(documents, d)
+	}
+
+	var output bytes.Buffer
+	for i, doc := range documents {
+		output.Write(doc)
+		// Note that KRM treats will try parse (and fail) empty documents if there is a trailing separator
+		if i != len(documents)-1 {
+			output.WriteString("\n---\n")
 		}
 	}
 
 	return output.String(), nil
+}
+
+func execTemplate(tmpl string, vars map[string]string) (string, error) {
+	t, err := template.New("tmpl").Parse(tmpl)
+	if err != nil {
+		return "", fmt.Errorf("error parsing template: %w", err)
+	}
+	var buf bytes.Buffer
+	err = t.Execute(&buf, vars)
+	if err != nil {
+		return "", fmt.Errorf("error executing template: %w", err)
+	}
+	return buf.String(), nil
 }
 
 func decryptFile(file string) ([]byte, error) {

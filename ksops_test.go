@@ -115,6 +115,14 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			name: "KRM Secret Metadata",
 			dir:  "test/krm/metadata",
 		},
+		{
+			name: "KRM Secret from Template",
+			dir:  "test/krm/template",
+		},
+		{
+			name: "KRM Secret from Template using File",
+			dir:  "test/krm/template-file",
+		},
 	}
 
 	// run kustomize version to validate installation

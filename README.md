@@ -271,6 +271,99 @@ secretFrom:
 EOF
 ```
 
+## Generate secret from templates
+
+`KSOPS` can generate a Kubernetes Secret by templating via [golang text/template](https://pkg.go.dev/text/template).
+
+This is useful if you want advanced templating to generate a config file,
+or you want to partially encrypt a file format not supported by sops.
+This could also come in handy when you do not want to specify every unencrypted fields
+in `.sops.yaml` for each sops secret you have.
+
+Values inside `secretFromTemplate.template.stringData` and `secretFromTemplate.template.data` are considered template strings.
+Each template string is templated using variables read from `secretFromTemplate.vars`.
+
+#### Create a Kubernetes Secret from a template
+
+Let's say you have the following config file, and you want to mask only the `password` field in it.
+
+```bash
+cat <<EOF > config.yaml
+cleartext_field: "foo"
+# You want to mask only the password field
+password: "super-secret-password"
+EOF
+```
+
+This is possible with the following configuration.
+
+```bash
+cat <<EOF > vars.env
+password=super-secret-password
+EOF
+sops -e vars.env > vars.enc.env
+
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: example-secret-generator
+  annotations:
+    config.kubernetes.io/function: |
+        exec:
+          path: ksops
+secretFromTemplate:
+- template:
+    metadata:
+      name: secret-name
+    type: Opaque
+    stringData:
+      config.yaml: |
+        cleartext_field: "foo"
+        password: "{{ .password }}"
+  vars:
+    envs:
+    - ./vars.enc.env
+EOF
+```
+
+#### Create a Kubernetes Secret from a file using template
+
+You can store stringData inside a file.
+
+```bash
+cat <<EOF > vars.env
+password=super-secret-password
+EOF
+sops -e vars.env > vars.enc.env
+
+cat <<EOF >config-template.yaml
+cleartext_field: "foo"
+password: "{{ .password }}"
+EOF
+
+cat <<EOF > secret-generator.yaml
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: example-secret-generator
+  annotations:
+    config.kubernetes.io/function: |
+        exec:
+          path: ksops
+secretFromTemplate:
+- template:
+    metadata:
+      name: secret-name
+    files:
+    - ./config-template.yaml
+    - config.yaml=./config-template.yaml
+  vars:
+    envs:
+    - ./secret.enc.env
+EOF
+```
+
 ## Generator Options
 
 `KSOPS` supports kustomize annotation based generator options. At the time of writing, the supported annotations are:
