@@ -16,13 +16,27 @@ function install_kustomize() {
     KSOPS_VERSION=$KSOPS_TAG
   fi
   LDFLAGS+=" -X sigs.k8s.io/kustomize/api/provenance.version=${KUSTOMIZE_VERSION}+ksops.${KSOPS_VERSION}"
-  GO111MODULE=on go install -ldflags "${LDFLAGS}" sigs.k8s.io/kustomize/kustomize/$KUSTOMIZE_MAJOR_VERSION@$KUSTOMIZE_VERSION
 
-  # Print the go binary path
+  # Determine the correct installation path
   GO_PATH=$(go env GOPATH)
   KUSTOMIZE_PATH="$GO_PATH/bin/$KUSTOMIZE"
+
+  # Ensure the bin directory exists
+  mkdir -p "$GO_PATH/bin"
+
+  # Build kustomize in a temporary directory to avoid module conflicts
+  TEMP_DIR=$(mktemp -d)
+  cd "$TEMP_DIR"
+
+  # Initialize a temporary module and set Go environment
+  go mod init temp-kustomize-build
+  export GOCACHE="$TEMP_DIR/.cache"
+  export GOMODCACHE="$TEMP_DIR/pkg/mod"
+  GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/$KUSTOMIZE_MAJOR_VERSION@$KUSTOMIZE_VERSION
+  GO111MODULE=on go build -ldflags "${LDFLAGS}" -o "$KUSTOMIZE_PATH" sigs.k8s.io/kustomize/kustomize/$KUSTOMIZE_MAJOR_VERSION
+
   echo "kustomize installed at $KUSTOMIZE_PATH"
-  
+
   $KUSTOMIZE_PATH version
 }
 
@@ -37,7 +51,7 @@ if [ -x "$(command -v $KUSTOMIZE)" ]; then
     # Remove existing kustomize executable
     echo "Removing existing $KUSTOMIZE executable..."
     echo "rm $KUSTOMIZE_EXEC"
-    rm $KUSTOMIZE_EXEC
+    rm "$KUSTOMIZE_EXEC"
 
     # Install
     install_kustomize
