@@ -108,6 +108,10 @@ func TestKSOPSPluginInstallation(t *testing.T) {
 			dir:  "test/krm/envs",
 		},
 		{
+			name: "KRM From Literals",
+			dir:  "test/krm/literals",
+		},
+		{
 			name: "KRM Override Key",
 			dir:  "test/krm/override",
 		},
