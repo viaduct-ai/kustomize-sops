@@ -1,4 +1,4 @@
-ARG GO_VERSION="1.24.6"
+ARG GO_VERSION="1.26.1"
 
 #--------------------------------------------#
 #--------Build KSOPS and Kustomize-----------#
