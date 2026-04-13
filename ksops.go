@@ -86,37 +86,54 @@ func help() {
 		- Legacy: ksops secret-generator.yaml
 		- KRM: cat secret-generator.yaml | ksops
 
-		Install Usage (copy binaries to a target directory):
+		Install Usage (copy ksops binary to a target directory):
 		- ksops install /custom-tools
+		- ksops install --with-kustomize /custom-tools
 `
 	fmt.Fprintf(os.Stderr, "%s", strings.ReplaceAll(msg, "		", ""))
 	os.Exit(1)
 }
 
-// installBinaries copies ksops and kustomize binaries to the target directory.
+// installBinaries copies the ksops binary to the target directory using os.Executable()
+// to resolve the current binary's path. Optionally copies kustomize with --with-kustomize.
 // This enables use in distroless containers where no shell or cp/mv commands are available,
 // such as ArgoCD init containers.
 func installBinaries(args []string) {
-	if len(args) == 0 {
+	withKustomize := false
+	var remaining []string
+	for _, arg := range args {
+		if arg == "--with-kustomize" {
+			withKustomize = true
+		} else {
+			remaining = append(remaining, arg)
+		}
+	}
+
+	if len(remaining) == 0 {
 		fmt.Fprintf(os.Stderr, "install requires a destination directory\n")
-		fmt.Fprintf(os.Stderr, "usage: ksops install <dest-dir>\n")
+		fmt.Fprintf(os.Stderr, "usage: ksops install [--with-kustomize] <dest-dir>\n")
 		os.Exit(1)
 	}
 
-	dest := args[0]
+	dest := remaining[0]
 
-	binaries := []struct {
-		src  string
-		name string
-	}{
-		{"/usr/local/bin/ksops", "ksops"},
-		{"/usr/local/bin/kustomize", "kustomize"},
+	self, err := os.Executable()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error resolving ksops executable path: %v\n", err)
+		os.Exit(1)
 	}
 
-	for _, bin := range binaries {
-		dst := filepath.Join(dest, bin.name)
-		if err := copyFile(bin.src, dst); err != nil {
-			fmt.Fprintf(os.Stderr, "error installing %s to %s: %v\n", bin.name, dst, err)
+	dst := filepath.Join(dest, "ksops")
+	if err := copyFile(self, dst); err != nil {
+		fmt.Fprintf(os.Stderr, "error installing ksops to %s: %v\n", dst, err)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stderr, "installed %s\n", dst)
+
+	if withKustomize {
+		dst := filepath.Join(dest, "kustomize")
+		if err := copyFile("/usr/local/bin/kustomize", dst); err != nil {
+			fmt.Fprintf(os.Stderr, "error installing kustomize to %s: %v\n", dst, err)
 			os.Exit(1)
 		}
 		fmt.Fprintf(os.Stderr, "installed %s\n", dst)
