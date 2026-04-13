@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -57,14 +58,72 @@ func help() {
 		Standalone Usage :
 		- Legacy: ksops secret-generator.yaml
 		- KRM: cat secret-generator.yaml | ksops
+
+		Install Usage (copy binaries to a target directory):
+		- ksops install /custom-tools
 `
 	fmt.Fprintf(os.Stderr, "%s", strings.ReplaceAll(msg, "		", ""))
 	os.Exit(1)
 }
 
+// installBinaries copies ksops and kustomize binaries to the target directory.
+// This enables use in distroless containers where no shell or cp/mv commands are available,
+// such as ArgoCD init containers.
+func installBinaries(args []string) {
+	if len(args) == 0 {
+		fmt.Fprintf(os.Stderr, "install requires a destination directory\n")
+		fmt.Fprintf(os.Stderr, "usage: ksops install <dest-dir>\n")
+		os.Exit(1)
+	}
+
+	dest := args[0]
+
+	binaries := []struct {
+		src  string
+		name string
+	}{
+		{"/usr/local/bin/ksops", "ksops"},
+		{"/usr/local/bin/kustomize", "kustomize"},
+	}
+
+	for _, bin := range binaries {
+		dst := filepath.Join(dest, bin.name)
+		if err := copyFile(bin.src, dst); err != nil {
+			fmt.Fprintf(os.Stderr, "error installing %s to %s: %v\n", bin.name, dst, err)
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "installed %s\n", dst)
+	}
+}
+
+// copyFile copies src to dst with executable permissions.
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	return err
+}
+
 // main executes KSOPS as an exec plugin
 func main() {
 	nargs := len(os.Args)
+
+	// Handle install subcommand
+	if nargs >= 2 && os.Args[1] == "install" {
+		installBinaries(os.Args[2:])
+		return
+	}
+
 	if !(nargs == 1 || nargs == 2) {
 		help()
 	}
