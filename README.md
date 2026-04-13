@@ -7,6 +7,7 @@
 - [Requirements](#requirements)
 - [Installation Options](#installation-options)
 - [Getting Started](#getting-started-tutorial)
+- [Configuration](#configuration)
 - [Generator Options](#generator-options)
 - [Development and Testing](#development-and-testing)
 - [Legacy Exec Plugin](#legacy-exec-plugin)
@@ -269,6 +270,29 @@ secretFrom:
   envs:
   - ./secret.enc.env
 EOF
+```
+
+## Configuration
+
+### Concurrent Decryption
+
+`KSOPS` decrypts files concurrently to improve performance when dealing with a large number of secrets. The maximum number of concurrent decryptions is controlled by the `KSOPS_CONCURRENCY_LIMIT` environment variable.
+
+```bash
+# Set the concurrency limit (default: 20)
+export KSOPS_CONCURRENCY_LIMIT=10
+kustomize build --enable-alpha-plugins --enable-exec .
+```
+
+If unset, the default concurrency limit is `20`. The value must be a positive integer.
+
+When using KSOPS with Argo CD, you can set this via the repo server environment variables:
+
+```yaml
+repoServer:
+  env:
+    - name: KSOPS_CONCURRENCY_LIMIT
+      value: "10"
 ```
 
 ## Generator Options

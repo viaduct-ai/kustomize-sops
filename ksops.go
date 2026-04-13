@@ -15,15 +15,42 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/getsops/sops/v3/cmd/sops/formats"
 	"github.com/getsops/sops/v3/decrypt"
 	"github.com/joho/godotenv"
+	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/kustomize/api/types"
 	"sigs.k8s.io/yaml"
 )
+
+type keyData struct {
+	key  string
+	data []byte
+}
+
+// decryptAll concurrently decrypts a list of files using the provided errgroup,
+// returning results in the same order as the input.
+func decryptAll[T any](g *errgroup.Group, items []string, fn func(file string) (T, error)) ([]T, error) {
+	results := make([]T, len(items))
+	for i, file := range items {
+		g.Go(func() error {
+			v, err := fn(file)
+			if err != nil {
+				return err
+			}
+			results[i] = v
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+	return results, nil
+}
 
 type kubernetesSecret struct {
 	APIVersion string            `json:"apiVersion" yaml:"apiVersion"`
@@ -201,14 +228,30 @@ func generate(raw []byte) (string, error) {
 		return "", fmt.Errorf("missing the required 'files' or 'secretFrom' key in the ksops manifests: %s", raw)
 	}
 
-	var output bytes.Buffer
+	var g errgroup.Group
+	limit := 20
+	if l := os.Getenv("KSOPS_CONCURRENCY_LIMIT"); l != "" {
+		limit, err = strconv.Atoi(l)
+		if err != nil || limit < 1 {
+			return "", fmt.Errorf("error parsing KSOPS_CONCURRENCY_LIMIT value %q: %w", l, err)
+		}
+	}
+	g.SetLimit(limit)
 
-	for i, file := range manifest.Files {
+	// Decrypt manifest.Files concurrently
+	decrypted, err := decryptAll(&g, manifest.Files, func(file string) ([]byte, error) {
 		data, err := decryptFile(file)
 		if err != nil {
-			return "", fmt.Errorf("error decrypting file %q from manifest.Files: %w", file, err)
+			return nil, fmt.Errorf("error decrypting file %q from manifest.Files: %w", file, err)
 		}
+		return data, nil
+	})
+	if err != nil {
+		return "", err
+	}
 
+	var output bytes.Buffer
+	for i, data := range decrypted {
 		output.Write(data)
 		// KRM treats will try parse (and fail) empty documents if there is a trailing separator
 		if i < (len(manifest.Files)+len(manifest.SecretFrom))-1 {
@@ -216,39 +259,55 @@ func generate(raw []byte) (string, error) {
 		}
 	}
 
-	for i, secretFrom := range manifest.SecretFrom {
+	for i, sf := range manifest.SecretFrom {
+		fileResults, err := decryptAll(&g, sf.Files, func(file string) (keyData, error) {
+			key, path := fileKeyPath(file)
+			data, err := decryptFile(path)
+			if err != nil {
+				return keyData{}, fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", path, err)
+			}
+			return keyData{key: key, data: data}, nil
+		})
+		if err != nil {
+			return "", err
+		}
+
+		binaryResults, err := decryptAll(&g, sf.BinaryFiles, func(file string) (keyData, error) {
+			key, path := fileKeyPath(file)
+			data, err := decryptFile(path)
+			if err != nil {
+				return keyData{}, fmt.Errorf("error decrypting file %q from secretFrom.BinaryFiles: %w", path, err)
+			}
+			return keyData{key: key, data: data}, nil
+		})
+		if err != nil {
+			return "", err
+		}
+
+		envResults, err := decryptAll(&g, sf.Envs, func(file string) (keyData, error) {
+			data, err := decryptFile(file)
+			if err != nil {
+				return keyData{}, fmt.Errorf("error decrypting file %q from secretFrom.Envs: %w", file, err)
+			}
+			return keyData{key: file, data: data}, nil
+		})
+		if err != nil {
+			return "", err
+		}
+
 		stringData := make(map[string]string)
 		binaryData := make(map[string]string)
 
-		for _, file := range secretFrom.Files {
-			key, path := fileKeyPath(file)
-			data, err := decryptFile(path)
-			if err != nil {
-				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", path, err)
-			}
-
-			stringData[key] = string(data)
+		for _, r := range fileResults {
+			stringData[r.key] = string(r.data)
 		}
-
-		for _, file := range secretFrom.BinaryFiles {
-			key, path := fileKeyPath(file)
-			data, err := decryptFile(path)
-			if err != nil {
-				return "", fmt.Errorf("error decrypting file %q from secretFrom.Files: %w", path, err)
-			}
-
-			binaryData[key] = base64.StdEncoding.EncodeToString(data)
+		for _, r := range binaryResults {
+			binaryData[r.key] = base64.StdEncoding.EncodeToString(r.data)
 		}
-
-		for _, file := range secretFrom.Envs {
-			data, err := decryptFile(file)
+		for _, r := range envResults {
+			env, err := godotenv.Unmarshal(string(r.data))
 			if err != nil {
-				return "", fmt.Errorf("error decrypting file %q from secretFrom.Envs: %w", file, err)
-			}
-
-			env, err := godotenv.Unmarshal(string(data))
-			if err != nil {
-				return "", fmt.Errorf("error unmarshalling .env file %q: %w", file, err)
+				return "", fmt.Errorf("error unmarshalling .env file %q: %w", r.key, err)
 			}
 			for k, v := range env {
 				stringData[k] = v
@@ -258,8 +317,8 @@ func generate(raw []byte) (string, error) {
 		s := kubernetesSecret{
 			APIVersion: "v1",
 			Kind:       "Secret",
-			Metadata:   secretFrom.Metadata,
-			Type:       secretFrom.Type,
+			Metadata:   sf.Metadata,
+			Type:       sf.Type,
 			StringData: stringData,
 			Data:       binaryData,
 		}
