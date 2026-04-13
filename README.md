@@ -388,16 +388,11 @@ spec:
       volumes:
         - name: custom-tools
           emptyDir: {}
-      # 2. Use an init container to download/copy custom binaries into the emptyDir
+      # 2. Use an init container to copy custom binaries into the emptyDir
       initContainers:
         - name: install-ksops
           image: viaductoss/ksops:v4.4.0
-          command: ["/bin/sh", "-c"]
-          args:
-            - echo "Installing KSOPS...";
-              mv ksops /custom-tools/;
-              mv kustomize /custom-tools/;
-              echo "Done.";
+          command: ["/usr/local/bin/ksops", "install", "/custom-tools"]
           volumeMounts:
             - mountPath: /custom-tools
               name: custom-tools
@@ -453,12 +448,10 @@ cat age.agekey | oc create secret generic sops-age --namespace=openshift-operato
     - name: SOPS_AGE_KEY_FILE
       value: /.config/sops/age/keys.txt
     initContainers:
-    - args:
-      - echo "Installing KSOPS..."; mv ksops /custom-tools/; mv kustomize /custom-tools/;
-        echo "Done.";
-      command:
-      - /bin/sh
-      - -c
+    - command:
+      - /usr/local/bin/ksops
+      - install
+      - /custom-tools
       image: viaductoss/ksops:v4.4.0
       name: install-ksops
       volumeMounts:
@@ -572,12 +565,7 @@ repoServer:
   initContainers:
     - name: install-ksops
       image: viaductoss/ksops:v4.4.0
-      command: ["/bin/sh", "-c"]
-      args:
-        - echo "Installing KSOPS...";
-          mv ksops /custom-tools/;
-          mv kustomize /custom-tools/;
-          echo "Done.";
+      command: ["/usr/local/bin/ksops", "install", "/custom-tools"]
       volumeMounts:
         - mountPath: /custom-tools
           name: custom-tools
