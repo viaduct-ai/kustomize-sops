@@ -11,7 +11,7 @@ require (
 
 require (
 	github.com/GoogleContainerTools/kpt-functions-sdk/go/fn v0.0.0-20221109010843-1f7d0c07a381
-	golang.org/x/sync v0.19.0
+	golang.org/x/sync v0.20.0
 )
 
 require (
@@ -136,12 +136,12 @@ require (
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
-	golang.org/x/net v0.50.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/term v0.40.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/term v0.43.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.267.0 // indirect
